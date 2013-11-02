@@ -120,35 +120,41 @@ calculateGeometry <- function(clip, Beg.Year, End.Year, B.Parcel, E.Parcel,
 ################################################################################
 # 3.0 Create a master list and label as A (all), B (beg) or E (end) ------------
 
-# 3.1 Match End Parcels to Beginning parcels
-  bb <- beg@data[,c("PINX","PresentUse")]
-  bbb <- merge(bb, end@data[,c("PINX","PresentUse")], by.x="PINX", by.y="PINX"
-             , all.x=T)
+# 3.1 Match End Parcels to Beginning parcels -----------------------------------
+
+ # 3.1.1 Create temp list of Beg PINx and Merge to End
+  bb <- beg@data[,c("PINX", "PresentUse")]
+  bbb <- merge(bb, end@data[ ,c("PINX", "PresentUse")],
+               by.x="PINX", by.y="PINX", all.x=T)
   colnames(bbb)[dim(bbb)[2]] <- "Type"
+  
+ # 3.1.2 Remove Duplicates
   bbb <- rmDup(bbb, "PINX")  
 
- # 3.1.1 Label as B (beginning only) or A (all years)
-  bbb$Type <- ifelse(is.na(bbb$Type),"B","A")
-  bbb$PresentUse.x<-NULL
+ # 3.1.3 Label as B (beginning only) or A (all years)
+  bbb$Type <- ifelse(is.na(bbb$Type), "B", "A")
+  bbb$PresentUse.x <- NULL
 
-# 3.2 Match Beginning Parcels to End Parcels
-  ee <- end@data[,c("PINX","PresentUse")]
-  eee <- merge(ee,beg@data[,c("PINX","PresentUse")], by.x="PINX", by.y="PINX"
-             , all.x=T)
+# 3.2 Match Beginning Parcels to End Parcels -----------------------------------
+
+ # 3.2.1 Create temp list of End PINx and Merge to Beg
+  ee <- end@data[ ,c("PINX", "PresentUse")]
+  eee <- merge(ee,beg@data[ ,c("PINX", "PresentUse")],
+               by.x="PINX", by.y="PINX", all.x=T)
   colnames(eee)[dim(eee)[2]] <- "Type"
 
- # 3.2.1 Label as E (end only) or A (all years)
-  eee$Type <- ifelse(is.na(eee$Type),"E","A")
-  eee$PresentUse.x<-NULL
+ # 3.2.2 Label as E (end only) or A (all years)
+  eee$Type <- ifelse(is.na(eee$Type), "E", "A")
+  eee$PresentUse.x <- NULL
 
-# 3.3 Comine A and B from 3.1 with only E from 3.2
-  Parcel.List <- rbind(bbb, eee[eee$Type == "E",])
+# 3.3 Comine A and B from 3.1 with only E from 3.2 -----------------------------
+  Parcel.List <- rbind(bbb, eee[eee$Type == "E", ])
 
  # 3.3.1 Sort by Type and then PINX
   Parcel.List <- Parcel.List[order(Parcel.List$Type, Parcel.List$PINX), ]
 
-# 3.9 Clean up Temp Data
-  rm(bb);rm(bbb);rm(ee);rm(eee);rm(begXY);rm(endXY)
+# 3.9 Clean up Temp Data -------------------------------------------------------
+  rm(bb); rm(bbb); rm(ee); rm(eee); rm(begXY); rm(endXY)
 
 ################################################################################
 # 4.0 Add variables and Chop into A, B and E chunks -----------------------
