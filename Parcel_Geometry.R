@@ -9,8 +9,8 @@
 #                                                                              # 
 ###############################################################################'
 
-calculateGeometry <- function(clip, Beg.Year, End.Year, B.Parcel, E.Parcel,
-                              SizePar, AreaPar){
+calculateGeometry <- function(clip, Beg.Year, End.Year, B.Parcel, E.Parcel, 
+                              B.Data, E.Data, SizePar, AreaPar){
 
 # 0.0 Set Global Parameters, Load Libraries and Files --------------------------
 
