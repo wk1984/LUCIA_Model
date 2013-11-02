@@ -37,28 +37,46 @@ calculateGeometry <- function(clip, Beg.Year, End.Year, B.Parcel, E.Parcel,
 ################################################################################
 # 1.0 Clip GIS and CAMA data ---------------------------------------------------
 
-# 1.1 Clip Parcel Files to Desired Geographic Area -----------------------------
+# 1.1 Clip Beginning Year Parcel Files to Desired Geographic Area --------------
 
- # 1.1.1 Clip Beginning Year File
-  begXY <- t(sapply(slot(beg,"polygons"),function(i) slot(i,"labpt")))
-  beg@data$X <- begXY[,1]
-  beg@data$Y <- begXY[,2]
-  beg1 <- beg[beg@data$X > clip@bbox[1,1] & beg@data$X < clip@bbox[1,2] &
-              beg@data$Y > clip@bbox[2,1] & beg@data$Y < clip@bbox[2,2], ]
-  begXY1 <- SpatialPointsDataFrame(
-      t(sapply(slot(beg1,"polygons"),function(i) slot(i,"labpt"))),beg1@data)
-  clipint<-gIntersects(clip, begXY1, byid=T)
+ # 1.1.1 Add X, Y
+  begXY <- t(sapply(slot(B.Parcel, "polygons"), function(i) slot(i, "labpt")))
+  B.Parcel@data$X <- begXY[ ,1]
+  B.Parcel@data$Y <- begXY[ ,2]
+  
+ # 1.1.2 Limit to Parcels with Clip Bbox
+  beg1 <- B.Parcel[B.Parcel@data$X > clip@bbox[1, 1] &
+                   B.Parcel@data$X < clip@bbox[1, 2] &
+                   B.Parcel@data$Y > clip@bbox[2, 1] &
+                   B.Parcel@data$Y < clip@bbox[2, 2], ]
+  
+ # 1.1.3 Convert to SPDF  
+  begXY1 <- SpatialPointsDataFrame(t(sapply(slot(beg1, "polygons"),
+                                      function(i) slot(i, "labpt"))), beg1@data)
+  
+ # 1.1.4 Clip to Clip Extent
+  clipint <- gIntersects(clip, begXY1, byid=T)
   beg <- beg1[which(clipint), ]
 
- # 1.1.2 Clip End Year File
-  endXY <- t(sapply(slot(end,"polygons"),function(i) slot(i,"labpt")))
-  end@data$X <- endXY[,1]
-  end@data$Y <- endXY[,2]
-  end1 <- end[end@data$X > clip@bbox[1,1] & end@data$X < clip@bbox[1,2] &
-              end@data$Y > clip@bbox[2,1] & end@data$Y < clip@bbox[2,2], ]
-  endXY1 <- SpatialPointsDataFrame(
-    t(sapply(slot(end1,"polygons"),function(i) slot(i,"labpt"))),end1@data)
-  clipint<-gIntersects(clip, endXY1, byid=T)
+# 1.2 Clip End Year Parcel Files to Desired Geographic Area --------------------
+
+ # 1.2.1 Add X, Y
+  endXY <- t(sapply(slot(E.Parcel, "polygons"), function(i) slot(i, "labpt")))
+  E.Parcel@data$X <- endXY[ ,1]
+  E.Parcel@data$Y <- endXY[ ,2]
+  
+ # 1.2.2 Limit to Parcels with Clip Bbox
+  end1 <- E.Parcel[E.Parcel@data$X > clip@bbox[1, 1] &
+                   E.Parcel@data$X < clip@bbox[1, 2] &
+                   E.Parcel@data$Y > clip@bbox[2, 1] &
+                   E.Parcel@data$Y < clip@bbox[2, 2], ]
+
+ # 1.2.3 Convert to SPDF  
+  endXY1 <- SpatialPointsDataFrame(t(sapply(slot(end1, "polygons"),
+                                      function(i) slot(i, "labpt"))), end1@data)
+ 
+ # 1.2.4 Clip to Clip Extent
+  clipint <- gIntersects(clip, endXY1, byid=T)
   end <- end1[which(clipint), ]
 
 ################################################################################
