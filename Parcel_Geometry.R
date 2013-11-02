@@ -451,6 +451,7 @@ for (i in 1:dim(plB)[1]){
  # 6.1.1 Set up initial beginning and ending parcels 
   bp.i <- beg[beg@data$PINX == plB$PINX[i], ]
   
+  
 # 6.2 Test for multiple parcels ------------------------------------------------
 
   if(length(bp.i) > 1){
@@ -500,6 +501,7 @@ for (i in 1:dim(plB)[1]){
       iae.ind <- length(which(int.area.E > SizePar))
     } # Ends 6.3.4 If
     
+    
 # 6.4 If not intersects more than SizePar --------------------------------------
     
     if(iae.ind == 0){
@@ -536,7 +538,8 @@ for (i in 1:dim(plB)[1]){
       inv.area.E <- NULL
     }# Ends 6.4 If
     
-# 6.5 Investigate those with intersects > SizePar
+    
+# 6.5 Investigate those with intersects > SizePar ------------------------------
     
     # 6.5.1 Calc Involved e.par areas
     if(iae.ind > 0){
@@ -589,6 +592,7 @@ for (i in 1:dim(plB)[1]){
   
     }# Ends 6.5.3 If  
   
+    
 # 6.6 For those with more than one involved E.par ------------------------------
     
     if(length(inv.area.E) > 1){
@@ -643,21 +647,22 @@ for (i in 1:dim(plB)[1]){
   } # Ends 6.4 If
 }# Ends 6.1 Loop
 
-# 6.7 Finds the data within the files and fix missing years
+# 6.7 Finds the data within the files and fix missing years --------------------
 
   plB <- parcelFinder(plB, "B", Beg.Year, End.Year)
   plB$PChng.Year <- yearFix(plB$PChng.Year)
 
 ################################################################################
-# 7.0 Deal with plE Parcels    -------------------------------------------------
+# 7.0 Label the "E" Parcels    -------------------------------------------------
 
-# 7.1 Start Loop through All E Parcels
+# 7.1 Start Loop through All E Parcels -----------------------------------------
+
 for (i in 1:dim(plE)[1]){
   
   # 7.1.1 Set up initial beginning and ending parcels 
   ep.i <- end[end@data$PINX == plE$PINX[i], ]
 
-# 7.2 Test for multiple parcels
+# 7.2 Test for multiple parcels ------------------------------------------------
   
   if(length(ep.i) > 1){
     plE$Topo.Type[i] <- "Multi-Polygon Parcel"
@@ -667,19 +672,20 @@ for (i in 1:dim(plE)[1]){
     plE$Parent[i] <- "NA"
   }
  
-# 7.3 If not Multi-parcel polygon
+  
+# 7.3 If not Multi-parcel polygon ----------------------------------------------
   
   if(length(ep.i) == 1){
     
-    # 7.3.1 Limit to parcels in large area (speeds up calcs)
-    area.par.B <- beg[beg@data$X > (ep.i@bbox[1,1] - AreaPar)
-                      & beg@data$X < (ep.i@bbox[1,2] + AreaPar)
-                      & beg@data$Y > (ep.i@bbox[2,1] - AreaPar)
-                      & beg@data$Y < (ep.i@bbox[2,2] + AreaPar),]
+   # 7.3.1 Limit to parcels in large area (speeds up calcs)
+    area.par.B <- beg[beg@data$X > (ep.i@bbox[1, 1] - AreaPar)
+                      & beg@data$X < (ep.i@bbox[1, 2] + AreaPar)
+                      & beg@data$Y > (ep.i@bbox[2, 1] - AreaPar)
+                      & beg@data$Y < (ep.i@bbox[2, 2] + AreaPar),]
 
     ap.B.int <- length(which(gIntersects(ep.i, area.par.B, byid=T)))
     
-    # 7.3.2 When ep.i intersects nothing
+   # 7.3.2 When ep.i intersects nothing
     if(ap.B.int == 0){
       adj.int.B <- 0
       int.area.B <- 0
@@ -691,8 +697,7 @@ for (i in 1:dim(plE)[1]){
       plE$Parent[i] <- "NA"
     }
     
-  # 7.3.3 When ep.i intersects, calculate the % intersect
-    
+   # 7.3.3 When ep.i intersects, calculate the % intersect
     if(ap.B.int != 0){ 
       adj.int.B <- area.par.B[which(gIntersects(ep.i, area.par.B, byid=T)), ]
       int.area.B<-rep(0,length(adj.int.B))
@@ -701,15 +706,15 @@ for (i in 1:dim(plE)[1]){
                            / gArea(adj.int.B[ab,]))
       }
             
-      # 6.4.1.3 Set indicator if intersect > SizePar
+    # Set indicator if intersect > SizePar
       iab.ind <- length(which(int.area.B > SizePar))
-    }
+    } # Ends 7.3.3 If
 
-    # 7.4.1 If not intersects more than SizePar
+# 7.4 If not intersects more than SizePar --------------------------------------
     
-    if(iab.ind == 0){
+  if(iab.ind == 0){
       
-      # 7.4.3.1 Calc intersect as % of ep.i
+      # 7.4.1 Calc intersect as % of ep.i
       ep.area<-rep(0,length(int.area.B))
       for(ab in 1:length(adj.int.B)){
         ep.area[ab] <- (gArea(gIntersection(ep.i, adj.int.B[ab,])) 
@@ -718,7 +723,7 @@ for (i in 1:dim(plE)[1]){
             
       ep.area.int <- which(ep.area > .5)
       
-      # 7.4.3.2 If no intersect at least half of bp.i
+      # 7.4.2 If no intersect at least half of bp.i
       if(length(ep.area.int) == 0){
         plE$Topo.Type[i] = "Relocated"
         plE$NbrChildren[i] <- (-99)
@@ -727,9 +732,9 @@ for (i in 1:dim(plE)[1]){
         plE$Parent[i] <- "NA"
       }
       
-      # 7.4.3.3 If interest is more than half of bp.i  # THINK THERE IS A MISTAKE HERE
+      # 7.4.3 If interest is more than half of bp.i  
       if(length(ep.area.int) > 0){
-        b.ref <- adj.int.B[which(ep.area.int==max(ep.area.int)),]
+        b.ref <- adj.int.B[which(ep.area.int == max(ep.area.int)), ]
         plE$Topo.Type[i] = "New - Split (S)"
         plE$NbrChildren[i] <- (-99)
         plE$Beg.Zone[i] <- as.character(b.ref@data$CurrentZoning[1])
@@ -737,164 +742,135 @@ for (i in 1:dim(plE)[1]){
         plE$Parent[i] <- b.ref@data$PINX[1]
       }   
       
-      # 7.4.3.4 for all intersect less than SizePar set inv.E to NULL
+      # 7.4.4 for all intersect less than SizePar set inv.E to NULL
       inv.B <- NULL
       inv.area.B <- NULL
-    }# Ends 7.4.3 If
     
-# 7.5 Investigate those with intersects > SizePar
+  }# Ends 7.4 If
     
-    # 7.5.1 Calc Involved e.par areas
     
-    if(iab.ind > 0){
+# 7.5 Investigate those with intersects > SizePar ------------------------------
+    
+  # 7.5.1 Calc Involved e.par areas
+   if(iab.ind > 0){
       inv.B <- adj.int.B[which(int.area.B > SizePar),]
       inv.area.B <- int.area.B[which(int.area.B > SizePar)]
-    }
+   }
     
-    # 7.5.2 For those with no int.area    
-    
-     if(length(int.area.B)==0){
+  # 7.5.2 For those with no int.area    
+   if(length(int.area.B) == 0){
        plE$Topo.Type[i] = "Relocated"
        plE$NbrChildren[i] <- (-99)
        plE$Beg.Zone[i] <- as.character(ep.i@data$CurrentZoning[1])
        plE$End.Zone[i] <- as.character(ep.i@data$CurrentZoning[1])
        plE$Parent[i] <- "NA"
+   }  
+    
+  # 7.5.3 For those with only one involved E.par
+   if(length(int.area.B) > 0 & length(inv.area.B) == 1){
+      
+   # If involved area is less that 1-SizePar
+     if(inv.area.B < (1 - SizePar)){
+       b.ref <- inv.B[1, ]
+       plE$NbrChildren[i] <- (-99)
+       plE$Beg.Zone[i] <- as.character(b.ref@data$CurrentZoning[1])
+       plE$End.Zone[i] <- as.character(ep.i@data$CurrentZoning[1])
+       plE$Parent[i] <- b.ref@data$PINX[1]
+       plE$Topo.Type[i] = "New - Split"
      }  
-    
-    # 7.5.3 For those with only one involved E.par
-    
-    if(length(int.area.B) > 0 & length(inv.area.B) == 1){
       
-      # 7.5.3.1 If involved area is less that 1-SizePar
-      if(inv.area.B < (1-SizePar)){
-        b.ref <- inv.B[1,]
-        plE$NbrChildren[i] <- (-99)
-        plE$Beg.Zone[i] <- as.character(b.ref@data$CurrentZoning[1])
-        plE$End.Zone[i] <- as.character(ep.i@data$CurrentZoning[1])
-        plE$Parent[i] <- b.ref@data$PINX[1]
-        plE$Topo.Type[i] = "New - Split"
-      }  
+    # If involved area is more than 1-SizePar
+     if(inv.area.B >= (1 - SizePar)){
+       b.ref <- inv.B[1, ]
+       plE$NbrChildren[i] <- (-99)
+       plE$Beg.Zone[i] <- as.character(b.ref@data$CurrentZoning[1])
+       plE$End.Zone[i] <- as.character(ep.i@data$CurrentZoning[1])
+       plE$Parent[i] <- b.ref@data$PINX[1]
+       plE$Topo.Type[i] = "New - Renamed"
+     }  
       
-      # 7.5.3.2 If involved area is more than 1-SizePar
-      if(inv.area.B >= (1-SizePar)){
-        b.ref <- inv.B[1,]
-        plE$NbrChildren[i] <- (-99)
-        plE$Beg.Zone[i] <- as.character(b.ref@data$CurrentZoning[1])
-        plE$End.Zone[i] <- as.character(ep.i@data$CurrentZoning[1])
-        plE$Parent[i] <- b.ref@data$PINX[1]
-        plE$Topo.Type[i] = "New - Renamed"
-      }  
-      
-    }# Ends 7.5.3 If  
+   }# Ends 7.5.3 If  
     
-  # 7.5.4 Those with more than one inv B
-    
-    if(length(int.area.B) > 0 & length(inv.area.B) > 1){
+ # 7.5.4 Those with more than one inv B
+   if(length(int.area.B) > 0 & length(inv.area.B) > 1){
       
-      # 7.5.4.1 Split and Join situation
-      if((length(which(inv.area.B > SizePar)) +
-           length(which(inv.area.B < (1-SizePar)))) > 1){
-        bp.area<-rep(0,length(int.area.B))
-        for(ab in 1:length(adj.int.B)){
-          bp.area[ab] <- (gArea(gIntersection(ep.i, adj.int.B[ab,])) 
+    # Split and Join situation
+     if((length(which(inv.area.B > SizePar)) +
+          length(which(inv.area.B < (1 - SizePar)))) > 1){
+       bp.area <- rep(0, length(int.area.B))
+       for(ab in 1:length(adj.int.B)){
+         bp.area[ab] <- (gArea(gIntersection(ep.i, adj.int.B[ab,])) 
                           / gArea(ep.i))
-        }
-        
-        b.ref <- adj.int.B[which(bp.area==max(bp.area)),]
-        plE$Topo.Type[i] = "New - Split + Join" 
-        plE$NbrChildren[i] <- (-99)
-        plE$Beg.Zone[i] <- as.character(b.ref@data$CurrentZoning[1])
-        plE$End.Zone[i] <- as.character(ep.i@data$CurrentZoning[1])
-        plE$Parent[i] <- b.ref@data$PINX[1]
-      }
+       }
+       b.ref <- adj.int.B[which(bp.area == max(bp.area)),]
+       plE$Topo.Type[i] = "New - Split + Join" 
+       plE$NbrChildren[i] <- (-99)
+       plE$Beg.Zone[i] <- as.character(b.ref@data$CurrentZoning[1])
+       plE$End.Zone[i] <- as.character(ep.i@data$CurrentZoning[1])
+       plE$Parent[i] <- b.ref@data$PINX[1]
+     }
      
-      # 7.5.4.2  Split
-      if(length(which(inv.area.B > SizePar & inv.area.B < (1-SizePar))) == 1){
-        bp.area<-rep(0,length(int.area.B))
-        for(ab in 1:length(adj.int.B)){
-          bp.area[ab] <- (gArea(gIntersection(ep.i, adj.int.B[ab,])) 
-                          / gArea(ep.i))
-        }
+    # Split Situation
+     if(length(which(inv.area.B > SizePar & inv.area.B < (1 - SizePar))) == 1){
+       bp.area <- rep(0,length(int.area.B))
+       for(ab in 1:length(adj.int.B)){
+         bp.area[ab] <- (gArea(gIntersection(ep.i, adj.int.B[ab, ])) 
+                         / gArea(ep.i))
+       }
                 
-        b.ref <- adj.int.B[which(bp.area==max(bp.area)),]
-        plE$NbrChildren[i] <- (-99)
-        plE$Beg.Zone[i] <- as.character(b.ref@data$CurrentZoning[1])
-        plE$End.Zone[i] <- as.character(ep.i@data$CurrentZoning[1])
-        plE$Parent[i] <- b.ref@data$PINX[1]
-        plE$Topo.Type[i] = "New - Split"  
-      }
+       b.ref <- adj.int.B[which(bp.area==max(bp.area)),]
+       plE$NbrChildren[i] <- (-99)
+       plE$Beg.Zone[i] <- as.character(b.ref@data$CurrentZoning[1])
+       plE$End.Zone[i] <- as.character(ep.i@data$CurrentZoning[1])
+       plE$Parent[i] <- b.ref@data$PINX[1]
+       plE$Topo.Type[i] = "New - Split"  
+     }
             
-      # 7.5.4.3  Small Split
-      if(length(which(inv.area.B > SizePar)) == 0){
-        bp.area<-rep(0,length(int.area.B))
+     # Small Split
+     if(length(which(inv.area.B > SizePar)) == 0){
+        bp.area <- rep(0,length(int.area.B))
         for(ab in 1:length(adj.int.B)){
-          bp.area[ab] <- (gArea(gIntersection(ep.i, adj.int.B[ab,])) 
+          bp.area[ab] <- (gArea(gIntersection(ep.i, adj.int.B[ab, ])) 
                           / gArea(ep.i))
         }
-                
         b.ref <- adj.int.B[which(bp.area==max(bp.area)),]
         plE$Beg.Zone[i] <- as.character(b.ref@data$CurrentZoning[1])
         plE$End.Zone[i] <- as.character(ep.i@data$CurrentZoning[1])
         plE$Parent[i] <- b.ref@data$PINX[1]
         plE$Topo.Type[i] = "New - Split (S)"
-      }
+     }
       
-      # 7.5.4.4  Lot Adjustment
-#       if(length(which(inv.area.B > SizePar)) == 1 &
-#            length(which(inv.area.B > SizePar)) == 0){
-#         #bp.area <- (gArea(gIntersection(ep.i, adj.int.B, byid=T),byid=T) /
-#         #              gArea(ep.i,byid=T)) # KILL ME
-#         
-#         bp.area<-rep(0,length(int.area.B))
-#         for(ab in 1:length(adj.int.B)){
-#           bp.area[ab] <- (gArea(gIntersection(ep.i, adj.int.B[ab,])) 
-#                           / gArea(ep.i))
-#         }
-#         
-#         b.ref <- adj.int.B[which(bp.area==max(bp.area)),]
-#         plE$Topo.Type[i] = "New - Renamed - Lot Adj"
-#         plE$NbrChildren[i] <- (-99)
-#         plE$Beg.Zone[i] <- as.character(b.ref@data$CurrentZoning[1])
-#         plE$End.Zone[i] <- as.character(ep.i@data$CurrentZoning[1])
-#         plE$Parent[i] <- b.ref@data$PINX[1]
-#       }
+  # 7.5.5 Join
+     if(length(which(inv.area.B > SizePar)) >= 1){
       
-      # 7.5.4.5 Join
-      if(length(which(inv.area.B > SizePar)) >= 1){
-        
-        # 7.5.4.5.1 Straight Join
-        if(length(which(inv.area.B >= .5)) > 1){
-          bp.area <- rep(0,length(adj.int.B))
-          for(ab in 1:length(adj.int.B)){
-            bp.area[ab] <- (gArea(gIntersection(ep.i, adj.int.B[ab,])) 
+      # Straight Join
+      if(length(which(inv.area.B >= .5)) > 1){
+         bp.area <- rep(0,length(adj.int.B))
+         for(ab in 1:length(adj.int.B)){
+           bp.area[ab] <- (gArea(gIntersection(ep.i, adj.int.B[ab, ])) 
                                / gArea(adj.int.B[ab,]))
-           }          
-          
-          b.ref <- adj.int.B[which(bp.area > .5), ]
-          plE$Topo.Type[i] = "New - Join"
-          plE$NbrChildren[i] <- length(b.ref)
-          plE$Beg.Zone[i] <-   names(which(table(as.character(
+         }          
+         b.ref <- adj.int.B[which(bp.area > .5), ]
+         plE$Topo.Type[i] = "New - Join"
+         plE$NbrChildren[i] <- length(b.ref)
+         plE$Beg.Zone[i] <-   names(which(table(as.character(
                          b.ref@data$CurrentZoning)) == max(table(as.character(
                              b.ref@data$CurrentZoning)))))[1]
-          plE$End.Zone[i] <- as.character(ep.i@data$CurrentZoning[1])
-          plE$Parent[i] <- "NA" 
-        } 
-        
-#         # 7.5.4.5.2 Rename with minority join
-#         if(length(which(inv.area.B >= .5)) == 1){
-#           plE$Topo.Type[i] = "New - Renamed - Lot Adj"
-#         } 
-        
-      }# Ends 7.5.4.5 If
-      
+         plE$End.Zone[i] <- as.character(ep.i@data$CurrentZoning[1])
+         plE$Parent[i] <- "NA" 
+      } 
+     }# Ends 7.5.5 If
     }# Ends 7.5.4 If      
-  } # Ends 7.4 If 
+  } # Ends 7.3 If 
 }# Ends 7.1 Loop
 
-plE <- parcelFinder(plE,"E",Beg.Year,End.Year)
-plE$PChng.Year <- yearFix(plE$PChng.Year)
+# 7.6 Finds the data within the files and fix missing years --------------------
 
-# 8.0 Put back together and write out -------------------------------------
+  plE <- parcelFinder(plE, "E", Beg.Year, End.Year)
+  plE$PChng.Year <- yearFix(plE$PChng.Year)
+
+################################################################################
+# 8.0 Put back together and write out ------------------------------------------
 plA$PChng.Year <- 0
 plA.Cons$PChng.Year <- 0
 
