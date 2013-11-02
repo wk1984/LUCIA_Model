@@ -83,19 +83,36 @@ calculateGeometry <- function(clip, Beg.Year, End.Year, B.Parcel, E.Parcel,
 ################################################################################
 # 2.0 Fix the Parcel and Point data files --------------------------------------
 
-# 2.1 Fix and Merge Beginning Year Parcel Data
+# 2.1 Fix and Merge Beginning Year Parcel Data ---------------------------------
+
+ # 2.1.1 Add PINX
   beg@data$PINX <- paste0("..", beg@data$PIN)
-  beg <- mergeShapeFile(beg, B.Parcel, "PINX", "PINX", allX=TRUE)
-  beg@data <- beg@data[,c("PINX","X","Y","PresentUse","CurrentZoning","SqFtLot")]
+
+ # 2.1.2 Merge ShapeFile
+  beg <- mergeShapeFile(beg, B.Data, "PINX", "PINX", allX=TRUE)
+
+ # 2.1.3 Trim to Needed Fields
+  beg@data <- beg@data[ ,c("PINX", "X", "Y", "PresentUse",
+                          "CurrentZoning", "SqFtLot")]
+  
+ # 2.1.4 Clean up Fields
   beg@data$PresentUse[is.na(beg@data$PresentUse)] <- -99
   beg@data$CurrentZoning <- as.character(beg@data$CurrentZoning)
   beg@data$CurrentZoning[is.na(beg@data$CurrentZoning)] <- "NA"
   beg@data$SqFtLot[is.na(beg@data$SqFtLot)] <- -99
 
-# 2.2 Fix and Merge End Year Parcel and Point Coverages
+# 2.2 Fix and Merge End Year Parcel Data ---------------------------------------
+
+ # 2.2.1 Add PINX
   end@data$PINX <- paste0("..", end@data$PIN)
-  end <- mergeShapeFile(end, E.Parcel, "PINX", "PINX", allX=TRUE)
-  end@data <- end@data[,c("PINX","X","Y","PresentUse","CurrentZoning","SqFtLot")]
+
+ # 2.2.2 Merge ShapeFile
+  end <- mergeShapeFile(end, E.Data, "PINX", "PINX", allX=TRUE)
+
+ # 2.2.3 Trim to Needed Fields
+  end@data <- end@data[ ,c("PINX", "X", "Y", "PresentUse",
+                           "CurrentZoning", "SqFtLot")]
+ # 2.1.4 Clean up Fields
   end@data$PresentUse[is.na(end@data$PresentUse)] <- -99
   end@data$CurrentZoning <- as.character(end@data$CurrentZoning)
   end@data$CurrentZoning[is.na(end@data$CurrentZoning)] <- "NA"
