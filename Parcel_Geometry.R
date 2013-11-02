@@ -157,9 +157,9 @@ calculateGeometry <- function(clip, Beg.Year, End.Year, B.Parcel, E.Parcel,
   rm(bb); rm(bbb); rm(ee); rm(eee); rm(begXY); rm(endXY)
 
 ################################################################################
-# 4.0 Add variables and Chop into A, B and E chunks -----------------------
+# 4.0 Add variables and Chop into A, B and E chunks ----------------------------
 
-# 4.1 Add additional variables to Parcel.List
+# 4.1 Add additional variables to Parcel.List ----------------------------------
   Parcel.List$Topo.Type <- "X"
   Parcel.List$Parent <- "X"
   Parcel.List$NbrChildren <- 0
@@ -167,7 +167,7 @@ calculateGeometry <- function(clip, Beg.Year, End.Year, B.Parcel, E.Parcel,
   Parcel.List$End.Zone <- "X"
   Parcel.List$Size.Diff <- 0
 
-# 4.2 Chop into A, B and E chunks
+# 4.2 Chop into A, B and E chunks ----------------------------------------------
   plA <- Parcel.List[Parcel.List$Type == "A", ]
   plB <- Parcel.List[Parcel.List$Type == "B", ]
   plE <- Parcel.List[Parcel.List$Type == "E", ]
