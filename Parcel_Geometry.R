@@ -173,7 +173,7 @@ calculateGeometry <- function(clip, Beg.Year, End.Year, B.Parcel, E.Parcel,
   plE <- Parcel.List[Parcel.List$Type == "E", ]
 
 ################################################################################
-# 5.0 Label the "A" Parcel  ----------------------------------------------------
+# 5.0 Label the "A" Parcels  ---------------------------------------------------
 
 # 5.1 Start Loop through All "A" Parcels ---------------------------------------
 
@@ -442,15 +442,16 @@ for(i in 1:dim(plA)[1]){
 } # Ends the 5.7 Loop
 
 ################################################################################
-# 6.0 Work through B Parcels ---------------------------------------------------
+# 6.0 Label the "B" parcels  ---------------------------------------------------
 
-# 6.1 Start Loop through All A Parcels
+# 6.1 Start Loop through All B Parcels -----------------------------------------
+
 for (i in 1:dim(plB)[1]){
     
  # 6.1.1 Set up initial beginning and ending parcels 
   bp.i <- beg[beg@data$PINX == plB$PINX[i], ]
   
-# 6.2 Test for multiple parcels
+# 6.2 Test for multiple parcels ------------------------------------------------
 
   if(length(bp.i) > 1){
     plB$Topo.Type[i] <- "Multi-Polygon"
@@ -460,20 +461,20 @@ for (i in 1:dim(plB)[1]){
     plB$Parent[i] <- "NA"
   }
 
-# 6.3 If not Multi-parcel polygon
+# 6.3 If not Multi-parcel polygon ----------------------------------------------
   
   if(length(bp.i)==1){
   
-  # 6.3.1.1 Limit to parcels in large area (speeds up calcs) and intersect
+  # 6.3.1 Limit to parcels in large area (speeds up calcs) and intersect
     area.par.E <- end[end@data$X > (bp.i@bbox[1,1] - AreaPar)
                     & end@data$X < (bp.i@bbox[1,2] + AreaPar)
                     & end@data$Y > (bp.i@bbox[2,1] - AreaPar)
-                    & end@data$Y < (bp.i@bbox[2,2] + AreaPar),]
+                    & end@data$Y < (bp.i@bbox[2,2] + AreaPar), ]
   
-  # 6.3.1.2 Record length of all area parcels intersecting
+  # 6.3.2 Record length of all area parcels intersecting
     ap.E.int <- length(which(gIntersects(bp.i, area.par.E, byid=T)))
     
-  # 6.3.2 When bp.i intersects nothing
+  # 6.3.3 When bp.i intersects nothing
     if(ap.E.int == 0){
       adj.int.E <- 0
       int.area.E <- NULL
@@ -486,32 +487,29 @@ for (i in 1:dim(plB)[1]){
       plB$Parent[i] <- "NA"
     }
     
-  #6.3.3.1 When bp.i intersects, calculate the % intersect
-    
+  # 6.3.4 When bp.i intersects, calculate the % intersect
     if(ap.E.int > 0){ 
       adj.int.E <- area.par.E[which(gIntersects(bp.i, area.par.E, byid=T)), ]
       int.area.E<-rep(0,length(adj.int.E))
       for(ae in 1:length(adj.int.E)){
-        int.area.E[ae] <- (gArea(gIntersection(bp.i, adj.int.E[ae,])) 
-                           / gArea(adj.int.E[ae,]))
+        int.area.E[ae] <- (gArea(gIntersection(bp.i, adj.int.E[ae, ])) 
+                           / gArea(adj.int.E[ae, ]))
       }
       
-      
-  # 6.3.3.2 Set indicator if intersect > SizePar
+    # Set indicator if intersect > SizePar
       iae.ind <- length(which(int.area.E > SizePar))
-    }
+    } # Ends 6.3.4 If
     
- # 6.4 If not intersects more than SizePar
+# 6.4 If not intersects more than SizePar --------------------------------------
     
     if(iae.ind == 0){
       
       # 6.4.1 Calc intersect as % of bp.i
-      bp.area<-rep(0,length(int.area.E))
+      bp.area<-rep(0, length(int.area.E))
       for(ae in 1:length(adj.int.E)){
-        bp.area[ae] <- (gArea(gIntersection(bp.i, adj.int.E[ae,])) 
+        bp.area[ae] <- (gArea(gIntersection(bp.i, adj.int.E[ae, ])) 
                         / gArea(bp.i))
       }
-        
       bp.area.int <- which(bp.area > .5)
       
       # 6.4.2 If no intersect at least half of bp.i
@@ -525,7 +523,7 @@ for (i in 1:dim(plB)[1]){
          
       # 6.4.3 If interest is more than half of bp.i
       if(length(bp.area.int) > 0){
-        e.ref <- adj.int.E[which(bp.area == max(bp.area)),]
+        e.ref <- adj.int.E[which(bp.area == max(bp.area)), ]
         plB$Topo.Type[i] = "Delete - Join (S)"
         plB$NbrChildren[i] <- (-99)
         plB$Beg.Zone[i] <- as.character(bp.i@data$CurrentZoning[1])
@@ -538,18 +536,16 @@ for (i in 1:dim(plB)[1]){
       inv.area.E <- NULL
     }# Ends 6.4 If
     
- # 6.5 Investigate those with intersects > SizePar
+# 6.5 Investigate those with intersects > SizePar
     
     # 6.5.1 Calc Involved e.par areas
-    
     if(iae.ind > 0){
-      inv.E <- adj.int.E[which(int.area.E > SizePar),]
+      inv.E <- adj.int.E[which(int.area.E > SizePar), ]
       inv.area.E <- int.area.E[which(int.area.E > SizePar)]
     }
     
     # 6.5.2 For those with no int.area    
-    
-    if(length(inv.area.E)==0){
+    if(length(inv.area.E) == 0){
       plB$Topo.Type[i] = "Relocated"
       plB$NbrChildren[i] <- (-99)
       plB$Beg.Zone[i] <- as.character(bp.i@data$CurrentZoning[1])
@@ -558,14 +554,13 @@ for (i in 1:dim(plB)[1]){
     }  
   
     # 6.5.3 For those with only one involved E.par
-    
     if(length(inv.area.E) == 1){
   
-      # 6.5.3.1 If involved area is less that 1-SizePar
-      if(inv.area.E < (1-SizePar)){
-        bp.area<-rep(0,length(int.area.E))
+      # If involved area is less that 1-SizePar
+      if(inv.area.E < (1 - SizePar)){
+        bp.area <- rep(0,length(int.area.E))
         for(ae in 1:length(adj.int.E)){
-          bp.area[ae] <- (gArea(gIntersection(bp.i, adj.int.E[ae,])) 
+          bp.area[ae] <- (gArea(gIntersection(bp.i, adj.int.E[ae, ])) 
                           / gArea(bp.i))
         }
         
@@ -577,15 +572,14 @@ for (i in 1:dim(plB)[1]){
         plB$Parent[i] <- as.character(e.ref@data$PINX[1]) 
       }  
       
-      # 6.5.3.2 If involved area is more than 1-SizePar
+      # If involved area is more than 1-SizePar
       if(inv.area.E >= (1-SizePar)){
         bp.area<-rep(0,length(int.area.E))
         for(ae in 1:length(adj.int.E)){
-          bp.area[ae] <- (gArea(gIntersection(bp.i, adj.int.E[ae,])) 
+          bp.area[ae] <- (gArea(gIntersection(bp.i, adj.int.E[ae, ])) 
                           / gArea(bp.i))
         }
-        
-        e.ref <- adj.int.E[which(bp.area == max(bp.area)),]
+        e.ref <- adj.int.E[which(bp.area == max(bp.area)), ]
         plB$Topo.Type[i] = "Delete - Renamed" 
         plB$NbrChildren[i] <- (-99)
         plB$Beg.Zone[i] <- as.character(bp.i@data$CurrentZoning[1])
@@ -595,19 +589,18 @@ for (i in 1:dim(plB)[1]){
   
     }# Ends 6.5.3 If  
   
- # 6.6 For those with more than one involved E.par
+# 6.6 For those with more than one involved E.par ------------------------------
     
     if(length(inv.area.E) > 1){
       
-      # 6.6.1 If none are more than .5, then it is the small end of a split
+    # 6.6.1 If none are more than .5, then it is the small end of a split
       if(length(which(inv.area.E > .5)) == 0){
-        bp.area<-rep(0,length(int.area.E))
+        bp.area <- rep(0, length(int.area.E))
         for(ae in 1:length(adj.int.E)){
-          bp.area[ae] <- (gArea(gIntersection(bp.i, adj.int.E[ae,])) 
+          bp.area[ae] <- (gArea(gIntersection(bp.i, adj.int.E[ae, ])) 
                           / gArea(bp.i))
         }
-                
-        e.ref <- adj.int.E[which(bp.area == max(bp.area)),]
+        e.ref <- adj.int.E[which(bp.area == max(bp.area)), ]
         plB$Topo.Type[i] = "Delete - Lot Adj - Spl"
         plB$NbrChildren[i] <- (-99)
         plB$Beg.Zone[i] <- as.character(bp.i@data$CurrentZoning[1])
@@ -617,12 +610,11 @@ for (i in 1:dim(plB)[1]){
       
       # 6.6.2 If only one is more than .5 then it is a rename and lot adj
       if(length(which(inv.area.E > .5)) == 1){ 
-      bp.area<-rep(0,length(int.area.E))
+        bp.area <- rep(0, length(int.area.E))
         for(ae in 1:length(adj.int.E)){
-          bp.area[ae] <- (gArea(gIntersection(bp.i, adj.int.E[ae,])) 
+          bp.area[ae] <- (gArea(gIntersection(bp.i, adj.int.E[ae, ])) 
                           / gArea(bp.i))
         }
-        
         e.ref <- adj.int.E[which(bp.area == max(bp.area)),]
         plB$Topo.Type[i] = "Delete - Lot Adj - Renamed"
         plB$NbrChildren[i] <- (-99)
@@ -633,12 +625,11 @@ for (i in 1:dim(plB)[1]){
       
       # 6.6.3 If more than one is .5, then it is a delete and split
       if(length(which(inv.area.E > .5)) > 1){ 
-        bp.area<-rep(0,length(adj.int.E))
+        bp.area <- rep(0, length(adj.int.E))
         for(ae in 1:length(adj.int.E)){
-          bp.area[ae] <- (gArea(gIntersection(bp.i, adj.int.E[ae,])) 
-                             / gArea(adj.int.E[ae,]))
+          bp.area[ae] <- (gArea(gIntersection(bp.i, adj.int.E[ae, ])) 
+                             / gArea(adj.int.E[ae, ]))
         }
-        
         e.ref <- adj.int.E[which(bp.area > .5),]
         plB$Topo.Type[i] = "Delete - Split"
         plB$NbrChildren[i] <- length(e.ref)
@@ -651,9 +642,11 @@ for (i in 1:dim(plB)[1]){
     }# Ends 6.6 If 
   } # Ends 6.4 If
 }# Ends 6.1 Loop
- 
-plB <- parcelFinder(plB,"B",Beg.Year,End.Year)
-plB$PChng.Year <- yearFix(plB$PChng.Year)
+
+# 6.7 Finds the data within the files and fix missing years
+
+  plB <- parcelFinder(plB, "B", Beg.Year, End.Year)
+  plB$PChng.Year <- yearFix(plB$PChng.Year)
 
 ################################################################################
 # 7.0 Deal with plE Parcels    -------------------------------------------------
