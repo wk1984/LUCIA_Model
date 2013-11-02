@@ -871,14 +871,19 @@ for (i in 1:dim(plE)[1]){
 
 ################################################################################
 # 8.0 Put back together and write out ------------------------------------------
-plA$PChng.Year <- 0
-plA.Cons$PChng.Year <- 0
 
-Parcel.List <-rbind(plA.Cons,plA,plB,plE)
+# 8.1 Add Change Variables to plA ----------------------------------------------
 
-return(Parcel.List)
+  plA$PChng.Year <- 0
+  plA.Cons$PChng.Year <- 0
+
+# 8.2 Comine all together ------------------------------------------------------
+
+  Parcel.List <-rbind(plA.Cons, plA, plB, plE)
+
+# 8.3 Return Results -----------------------------------------------------------
+ 
+  return(Parcel.List)
+
 }
-#write.table(Parcel.List, paste0("C://dropbox//data//wa//seattle//geographic//",
-                    "ParcelGeometry2.txt"),row.names=F)
-
 
