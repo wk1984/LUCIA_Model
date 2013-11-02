@@ -67,6 +67,7 @@ parcelFinder <- function(X, Type, Beg.Year, End.Year){
    } # ends Q for
   } # ends if
 
+
 # 0.6 Fix PIN change date if "B" parcel ----------------------------------------
 
   if(Type == "E"){
@@ -81,5 +82,6 @@ parcelFinder <- function(X, Type, Beg.Year, End.Year){
 
 # 0.7 Returns Value ------------------------------------------------------------
 
+X$PChng.Year[is.na(X$PChng.Year)] <- -1
 return(X)
 }
