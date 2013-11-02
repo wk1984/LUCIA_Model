@@ -5,7 +5,7 @@
 #        Compares the data and geometry from two years                         #                                                                                    ###          by Andy Krause                                                  ###
 #        To determine the changes to the parcel over that time                 #
 #                                                                              #
-#        Most Recent Update: April 5th, 2013                                   #
+#        Most Recent Update: 11/2/2013                                         #
 #                                                                              # 
 ###############################################################################'
 
@@ -29,15 +29,15 @@ calculateGeometry <- function(clip, Beg.Year, End.Year, B.Parcel, E.Parcel,
 
 # 0.3 Set Global Parameters ----------------------------------------------------
 
-  if(!exists("SizePar") SizePar <-  .1 # % Change to Consider as Geometry Change
-  if(!exists("AreaPar") AreaPar <- 3000     # # of Feet to Search 
-  if(!exists("Beg.Year") Beg.Year <- 1999    # Year Analysis should begin
-  if(!exists("End.Year") End.Year <- 2013    # Year Analysis ends
+  if(!exists("SizePar")) SizePar <-  .1 # % Change to Consider as Geometry Change
+  if(!exists("AreaPar")) AreaPar <- 3000     # # of Feet to Search 
+  if(!exists("Beg.Year")) Beg.Year <- 1999    # Year Analysis should begin
+  if(!exists("End.Year")) End.Year <- 2013    # Year Analysis ends
 
 ################################################################################
 # 1.0 Clip GIS and CAMA data ---------------------------------------------------
 
-# 1.1 Clip GIS Files
+# 1.1 Clip Parcel Files to Desired Geographic Area -----------------------------
 
  # 1.1.1 Clip Beginning Year File
   begXY <- t(sapply(slot(beg,"polygons"),function(i) slot(i,"labpt")))
