@@ -23,8 +23,7 @@ calculateGeometry <- function(clip, Beg.Year, End.Year, B.Parcel, E.Parcel,
 # 0.2 Load Files ---------------------------------------------------------------
 
   source("D://Code//R//General//R_Helpers//Spatial_Helpers.R")
-  source(paste0("D://Code//R//General//Geographic//WA//KingCounty//",
-             "Coding_Functions.R"))
+  source("D://Code//R//General//R_Helpers//Basic_Helpers.R")
   source("D://Code//R//Research//LUCIA_Model//parcelFinder.R")  
   source("D://Code//R//Research//LUCIA_Model//yearFix.R")
 
