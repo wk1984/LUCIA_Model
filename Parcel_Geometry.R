@@ -1,36 +1,38 @@
-'###############################################################################                                                                                                      ###                                                                          ###  
-###        Compares the data and geometry from two years                     ###                                                                                    ###          by Andy Krause                                                  ###
-###        To determine the changes to the parcel over that time             ###
-###                                                                          ###
-###        Most Recent Update: April 5th, 2013                               ###
-###                                                                          ### 
+################################################################################                                                                                                      ###                                                                          ###  
+#                                                                              #
+#    LUCIA MODEL: Parcel_Geometry                                              #
+#                                                                              #
+#        Compares the data and geometry from two years                         #                                                                                    ###          by Andy Krause                                                  ###
+#        To determine the changes to the parcel over that time                 #
+#                                                                              #
+#        Most Recent Update: April 5th, 2013                                   #
+#                                                                              # 
 ###############################################################################'
 
-
-calculateGeometry <- function(clip, beg, end, B.Parcel, E.Parcel, 
+calculateGeometry <- function(clip, Beg.Year, End.Year, B.Parcel, E.Parcel,
                               SizePar, AreaPar){
 
 # 0.0 Set Global Parameters, Load Libraries and Files --------------------------
 
-# 0.1 Load Libraries
+# 0.1 Load Libraries -----------------------------------------------------------
 
-  library(maptools)
-  library(rgeos)
-  library(RODBC)
+  require(maptools)
+  require(rgeos)
+  require(RODBC)
 
-# 0.2 Load Files
+# 0.2 Load Files ---------------------------------------------------------------
 
-  source("c://Dropbox//Code//WA//KingCounty//K_CodingFunctions.R")
-  source("c://Dropbox//Code//WA//KingCounty//PSS_Model//parcelFinder.R")  
-  source("c://Dropbox//Code//WA//KingCounty//PSS_Model//yearFix.R")
+  source(paste0("D://Code//R//General//Geographic//WA//KingCounty//",
+                "Coding_Functions.R"))
+  source("D://Code//R//Research//LUCIA_Model//parcelFinder.R")  
+  source("D://Code//R//Research//LUCIA_Model//yearFix.R")
 
+# 0.3 Set Global Parameters ----------------------------------------------------
 
-# 0.3 Set Global Parameters
-
-#   SizePar <-  .1
-#   AreaPar <- 3000
-#   Beg.Year <- 1999
-#   End.Year <- 2013
+  if(!exists("SizePar") SizePar <-  .1 # % Change to Consider as Geometry Change
+  if(!exists("AreaPar") AreaPar <- 3000     # # of Feet to Search 
+  if(!exists("Beg.Year") Beg.Year <- 1999    # Year Analysis should begin
+  if(!exists("End.Year") End.Year <- 2013    # Year Analysis ends
 
 ################################################################################
 # 1.0 Clip GIS and CAMA data ---------------------------------------------------
