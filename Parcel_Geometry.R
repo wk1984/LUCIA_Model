@@ -173,13 +173,14 @@ calculateGeometry <- function(clip, Beg.Year, End.Year, B.Parcel, E.Parcel,
   plE <- Parcel.List[Parcel.List$Type == "E", ]
 
 ################################################################################
-# 5.0 Work through the A parcels------------------------------------------------
+# 5.0 Label the "A" Parcel  ----------------------------------------------------
 
-# 5.1 Start Loop through All A Parcels
+# 5.1 Start Loop through All "A" Parcels ---------------------------------------
+
 for (i in 1:dim(plA)[1]){
-#for (i in 1:3000){
-    
-# 5.2 Initial Setup and Variable Declarations  
+   
+
+# 5.2 Initial Setup and Variable Declarations ----------------------------------  
   
   # 5.2.1 Define Variable Indicating no change in size
   nosizechange <- 0  
@@ -188,34 +189,38 @@ for (i in 1:dim(plA)[1]){
   bp.i <- beg[beg@data$PINX == plA$PINX[i], ]
   ep.i <- end[end@data$PINX == plA$PINX[i], ]
 
-# 5.3 Calculate lot size differences between the bp and ep  
+# 5.3 Calculate lot size differences between the bp and ep ---------------------  
   
-  lotadj <- round((gArea(ep.i)-gArea(bp.i)) / gArea(bp.i),3)
+ # 5.3.1 Calculate Lot Adjustment Percentage
+  lotadj <- round((gArea(ep.i) - gArea(bp.i)) / gArea(bp.i), 3)
   
-  # assign this difference to plA file
+ # 5.3.2 Assign this difference to plA file
   plA$Size.Diff[i] <- lotadj
 
-  # change nosizechange indicator if size dif > SizePar
-  if(abs(lotadj) <= SizePar){nosizechange<-1}
+ # 5.3.3 Change nosizechange indicator if size dif > SizePar
+  if(abs(lotadj) <= SizePar){nosizechange <- 1}
 
-# 5.4 Label Consistent parcels as such
+# 5.4 Label Consistent parcels as such -----------------------------------------
    
-  # 5.4.1 if all match up, give it consistent
+  # 5.4.1 If all match up, give it consistent
   if(nosizechange == 1){
     plA$Topo.Type[i] <- "Consistent"
     plA$NbrChildren[i] <- 0
     plA$Beg.Zone[i] <- as.character(bp.i@data$CurrentZoning[1])
     plA$End.Zone[i] <- as.character(ep.i@data$CurrentZoning[1])
     plA$Parent[i] <- "NA"
-  } # Ends 5.4.1 'if' statement
+  } 
  
-# 5.5 Test for the odd case where ep.i and bp.i do not intersect
+
+# 5.5 Test for the odd case where ep.i and bp.i do not intersect ---------------
+  
+ # 5.5.1 Determine if they intersect
   bp.ep.int <- gIntersects(bp.i, ep.i, byid=T)
   
-  # 5.5.1 If Multi Polygon Parcel, lable as such
-  if(length(bp.ep.int)>1){
+  # 5.5.2 If Multi Polygon Parcel, label as such
+  if(length(bp.ep.int) > 1){
     
-    # 5.5.1.1 If Multi Polygon is same size
+    # If Multi Polygon is same size
     if(nosizechange == 1){
       plA$Topo.Type[i] <- "Consistent - MP"
       plA$NbrChildren[i] <- 0
@@ -225,7 +230,7 @@ for (i in 1:dim(plA)[1]){
       bp.ep.int <- TRUE
     }
     
-    # 5.5.1.2 If Multi Polygon is same size
+    # If Multi Polygon is not the same size
     if(nosizechange == 0){
       plA$Topo.Type[i] <- "Change - MP"
       plA$NbrChildren[i] <- (-99)
@@ -235,12 +240,12 @@ for (i in 1:dim(plA)[1]){
       nosizechange <- 1
       bp.ep.int <- TRUE
     }
-  }
+  } # Ends 5.5.2 If
 
-  # 5.5.2 If parcel has physically moved, doesn't intersect and is a different size
+  # 5.5.3 If parcel has physically moved, doesn't intersect and is diff size
   if(!bp.ep.int & length(bp.ep.int) <= 1){
     
-    # 5.5.2.1 If size hasn't changed
+    # If size hasn't changed
     if(abs(lotadj) <= SizePar){
       plA$Topo.Type[i] <- "Consistent - Rel" 
       plA$NbrChildren[i] <- (-99)
@@ -250,7 +255,7 @@ for (i in 1:dim(plA)[1]){
       nosizechange <- 1 # so that the following calculations do not occur
     }
     
-    # 5.5.2.2 If size has changed
+    # If size has changed
     if(abs(lotadj) > SizePar){
       plA$Topo.Type[i] <- "Change - Rel" 
       plA$NbrChildren[i] <- (-99)
@@ -259,44 +264,40 @@ for (i in 1:dim(plA)[1]){
       plA$Parent[i] <- "NA"
       nosizechange <- 1 # so that the following calculations do not occur
     }
-  }  
-}
+  } # Ends 5.5.3 If  
+} # Ends 5.1 If
 
-# 5.6 Separate into Consistent and Not
+# 5.6 Separate into Consistent and Not -----------------------------------------
   
-  plA.Cons <- plA[plA$Topo.Type!="X",]
-  plA <- plA[plA$Topo.Type=="X",]
+  plA.Cons <- plA[plA$Topo.Type != "X", ]
+  plA <- plA[plA$Topo.Type == "X", ]
 
-# 5.7 Deal with remaining non-consistent plA parcels
+# 5.7 Deal with remaining non-consistent plA parcels ---------------------------
 
+ # 5.7.1 Start Loop
 for(i in 1:dim(plA)[1]){
 
-# Skip those filtered out during this process at an earlier i
-
-if(plA$Topo.Type[i]=="X"){
-  
- # 5.7.1 Select beginning and Ending Parcels
-  
+ # 5.7.2 Select beginning and Ending Parcels
   bp.i <- beg[beg@data$PINX == plA$PINX[i], ]
   ep.i <- end[end@data$PINX == plA$PINX[i], ]
   
  # 5.7.2 Select Area Parcels and determine intersects
-  area.par.E <- end[end@data$X > (bp.i@bbox[1,1] - AreaPar)
-                    & end@data$X < (bp.i@bbox[1,2] + AreaPar)
-                    & end@data$Y > (bp.i@bbox[2,1] - AreaPar)
-                    & end@data$Y < (bp.i@bbox[2,2] + AreaPar),]
+  area.par.E <- end[end@data$X > (bp.i@bbox[1, 1] - AreaPar)
+                    & end@data$X < (bp.i@bbox[1, 2] + AreaPar)
+                    & end@data$Y > (bp.i@bbox[2, 1] - AreaPar)
+                    & end@data$Y < (bp.i@bbox[2, 2] + AreaPar), ]
  
-   # 5.7.2.1 Determine which e.par intersect bp.i
+   # Determine which e.par intersect bp.i
    adj.int.E <- area.par.E[which(gIntersects(bp.i, area.par.E, byid=T)), ]
     
-   # 5.7.2.2 Loop through each (necessary because of overlappers)
-   int.area.E<-rep(0,length(adj.int.E))
+   # Loop through each (necessary because of overlappers)
+   int.area.E <- rep(0, length(adj.int.E))
    for(ae in 1:length(adj.int.E)){
-     int.area.E[ae] <- (gArea(gIntersection(bp.i, adj.int.E[ae,])) 
-                         / gArea(adj.int.E[ae,]))
+     int.area.E[ae] <- (gArea(gIntersection(bp.i, adj.int.E[ae, ])) 
+                         / gArea(adj.int.E[ae, ]))
    }
     
-   # 5.7.2.3 Determine which intersect at least SizePar (eliminates small overlaps)
+   # Determine which intersect at least SizePar (eliminates small overlaps)
    ie.ind <- length(which(int.area.E > SizePar))
     
    if(ie.ind == 0){
@@ -305,21 +306,22 @@ if(plA$Topo.Type[i]=="X"){
    }
     
    if(ie.ind != 0){
-     inv.E <- adj.int.E[which(int.area.E > SizePar),]
+     inv.E <- adj.int.E[which(int.area.E > SizePar), ]
      inv.area.E <- int.area.E[which(int.area.E > SizePar)]
    }
     
-# 5.8 Deal with those with Inv.E == 0    
+  
+# 5.8 Deal with those with Inv.E == 0 ------------------------------------------    
   
     if(length(inv.E) == 0){  
       
   # 5.8.1 Estimate Intesects B of E / B 
       bp.over<-rep(0,length(int.area.E))
       for(ae in 1:length(adj.int.E)){
-        bp.over[ae] <- (gArea(gIntersection(bp.i, adj.int.E[ae,])) 
+        bp.over[ae] <- (gArea(gIntersection(bp.i, adj.int.E[ae, ])) 
                            / gArea(bp.i))
       }
-      bp.max <- bp.over[which(bp.over==max(bp.over))]
+      bp.max <- bp.over[which(bp.over == max(bp.over))]
       
   # 5.8.2 Test for small interior join parcel
       if(bp.max >= .5){
@@ -355,22 +357,22 @@ if(plA$Topo.Type[i]=="X"){
       
     # 5.9.1 Test for a possible join scenario with overlap of b.par on ep.i
       
-      # 5.9.1.1  Limit to parcels in large area (speeds up calcs)
-      area.par.B <- beg[beg@data$X > (ep.i@bbox[1,1] - AreaPar)
-                        & beg@data$X < (ep.i@bbox[1,2] + AreaPar)
-                        & beg@data$Y > (ep.i@bbox[2,1] - AreaPar)
-                        & beg@data$Y < (ep.i@bbox[2,2] + AreaPar),]
+      # Limit to parcels in large area (speeds up calcs)
+      area.par.B <- beg[beg@data$X > (ep.i@bbox[1, 1] - AreaPar)
+                        & beg@data$X < (ep.i@bbox[1, 2] + AreaPar)
+                        & beg@data$Y > (ep.i@bbox[2, 1] - AreaPar)
+                        & beg@data$Y < (ep.i@bbox[2, 2] + AreaPar), ]
       
-      # 5.9.1.2 Determine which b.par intersect ep.i
+      # Determine which b.par intersect ep.i
       adj.int.B <- area.par.B[which(gIntersects(ep.i, area.par.B, byid=T)), ]
-      int.area.B<-rep(0,dim(adj.int.B)[1])
+      int.area.B <- rep(0, dim(adj.int.B)[1])
       for(ae in 1:length(adj.int.B)){
-        int.area.B[ae] <- (gArea(gIntersection(ep.i, adj.int.B[ae,])) 
-                        / gArea(adj.int.B[ae,]))
+        int.area.B[ae] <- (gArea(gIntersection(ep.i, adj.int.B[ae, ])) 
+                        / gArea(adj.int.B[ae, ]))
       }
  
-      # 5.9.1.3 Determine which intersect at least SizePar (eliminates small overlaps)
-      inv.B <- adj.int.B[which(int.area.B > SizePar),]
+      # Determine which intersect at least SizePar (eliminates small overlaps)
+      inv.B <- adj.int.B[which(int.area.B > SizePar), ]
       inv.area.B <- int.area.B[which(int.area.B > SizePar)]
       
     # 5.9.2 Label those with a simple case of lot adjusment
@@ -392,51 +394,51 @@ if(plA$Topo.Type[i]=="X"){
       }
   }# Ends 5.9 If 
 
-# 5.10 Test those with more than one involved parcel    
-    if(length(inv.E) > 1){
+# 5.10 Test those with more than one involved parcel ---------------------------   
+  
+  if(length(inv.E) > 1){
       
-      # 5.10.1 Label those with multiple involve parcels more than 50% in bp.i
-      if(length(which(inv.area.E > .5)) > 1){  
-        plA$Topo.Type[i] <- "Split - Retain"
+  # 5.10.1 Label those with multiple involved parcels more than 50% in bp.i
+    if(length(which(inv.area.E > .5)) > 1){  
+      plA$Topo.Type[i] <- "Split - Retain"
+      plA$NbrChildren[i] <- length(inv.area.E)
+      plA$Parent[i] <- ep.i@data$PINX
+      plA$Beg.Zone[i] <- as.character(bp.i@data$CurrentZoning[1])
+      plA$End.Zone[i] <- as.character(ep.i@data$CurrentZoning[1])      
+    }
+    
+  # 5.10.2 Those involved in a minority part of a split
+    if(length(which(inv.area.E > .5)) <= 1){
+        
+    # Sum up all involved parcels
+      mp <- NULL
+      for(k in 1:length(inv.area.E)){
+        mp <- c(mp, which(beg@data$PINX == inv.E@data$PINX[k]))
+      }
+      mp.area <- (gArea(inv.E) / gArea(beg[mp, ])) / gArea(beg[mp, ])
+        
+    # If changes in involved parcels is more than size par
+      if(abs(mp.area) > SizePar){
+        plA$Topo.Type[i] <- "Lot Adj - Split"
         plA$NbrChildren[i] <- length(inv.area.E)
         plA$Parent[i] <- ep.i@data$PINX
         plA$Beg.Zone[i] <- as.character(bp.i@data$CurrentZoning[1])
-        plA$End.Zone[i] <- as.character(ep.i@data$CurrentZoning[1])      
+        plA$End.Zone[i] <- as.character(ep.i@data$CurrentZoning[1])
       }
-    
-      # 5.10.2 Those involved in a minority part of a split
-      if(length(which(inv.area.E > .5)) <= 1){
-        
-        # 5.10.2.1 Sum up all involved parcels
-        mp <- NULL
-        for(k in 1:length(inv.area.E)){
-          mp <- c(mp, which(beg@data$PINX == inv.E@data$PINX[k]))
-        }
-        mp.area <- (gArea(inv.E)/gArea(beg[mp,]))/gArea(beg[mp,])
-        
-        # 5.10.2.2 If changes in involved parcels is more than size par
-        if(abs(mp.area) > SizePar){
-          plA$Topo.Type[i] <- "Lot Adj - Split"
-          plA$NbrChildren[i] <- length(inv.area.E)
-          plA$Parent[i] <- ep.i@data$PINX
-          plA$Beg.Zone[i] <- as.character(bp.i@data$CurrentZoning[1])
-          plA$End.Zone[i] <- as.character(ep.i@data$CurrentZoning[1])
-        }
       
-        # 5.10.2.3 If change in involved parcels is less than sizepar
-        if(abs(mp.area) < SizePar){
-          for(k in 1:length(mp)){
-            ik <- which(plA$PINX==beg@data$PINX[mp[k]])
-            plA$Topo.Type[ik] <- "Lot Adjustment"
-            plA$NbrChildren[ik] <- 0
-            plA$Parent[ik] <- "NA"
-            plA$Beg.Zone[ik] <- as.character(beg@data$CurrentZoning[mp[k]])
-            plA$End.Zone[ik] <- as.character(end@data$CurrentZoning[mp[k]])
-          } # Ends k 
-        }# 5.10.2.3 If     
+    # If change in involved parcels is less than sizepar
+      if(abs(mp.area) < SizePar){
+        for(k in 1:length(mp)){
+          ik <- which(plA$PINX == beg@data$PINX[mp[k]])
+          plA$Topo.Type[ik] <- "Lot Adjustment"
+          plA$NbrChildren[ik] <- 0
+          plA$Parent[ik] <- "NA"
+          plA$Beg.Zone[ik] <- as.character(beg@data$CurrentZoning[mp[k]])
+          plA$End.Zone[ik] <- as.character(end@data$CurrentZoning[mp[k]])
+        } # Ends k 
+      }# If     
     }# Ends 5.10.2 If      
   }# Ends the 5.10 If 
-} # Ends the 5.7 If
 } # Ends the 5.7 Loop
 
 ################################################################################
