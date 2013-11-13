@@ -1,12 +1,11 @@
-'###############################################################################
+################################################################################                                                                                                      ###                                                                          ###  
 #                                                                              #
-#  createParcelList.R                                                          #
-#  - Most Recent Update:  4/6/2013                                            #
+#    LUCIA MODEL: create_ParcelList                                            #
 #                                                                              #
-#  This file determine the parcel history of each parcel from both the         #
-#  beginning and the end year files as indicated by the user                   #
-#  It is part of the data cleaning process                                     #
+#        Builds the Underlying Parcel List Data                                #                                                                                    ###          by Andy Krause                                                  ###
 #                                                                              #
+#        Most Recent Update: 11/2/2013                                         #
+#                                                                              # 
 ###############################################################################'
 
 createParcelList <- function(Beg.Year, End.Year){
