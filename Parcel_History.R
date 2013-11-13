@@ -24,8 +24,8 @@ createParcelHistory <- function(Parcel.List, Par.Geom, Beg.Year, End.Year){
   source("D://Code//R//General//R_Helpers//Basic_Helpers.R")
   source("D://Code//R//Research//LUCIA_Model//parcelFinder.R")  
   source("D://Code//R//Research//LUCIA_Model//yearFix.R")
-  
-  #source("c://Dropbox//Code//WA//KingCounty//PSS_Model//createParcelList.R")
+  source("D://Code//R//Research//LUCIA_Model//createParcelList.R")
+
   #source("c://Dropbox//Code//WA//KingCounty//PSS_Model//AchangeFinder.R")
   #source("c://Dropbox//Code//WA//KingCounty//PSS_Model//RchangeFinder.R")
   #source("c://Dropbox//Code//WA//KingCounty//PSS_Model//CchangeFinder.R")
@@ -33,7 +33,7 @@ createParcelHistory <- function(Parcel.List, Par.Geom, Beg.Year, End.Year){
 
 ################################################################################
 # 1.0 Merge Parcel List and Parcel Geometry Data  ------------------------------
- 
+
 # 1.1 Merge to the Parcel List
   
   AllPT <- merge(Par.Geom, Parcel.List, by.x="PINX", by.y="PINX")
@@ -41,7 +41,7 @@ createParcelHistory <- function(Parcel.List, Par.Geom, Beg.Year, End.Year){
 ################################################################################
 # 2.0 Assign Original Consistencies --------------------------------------------
 
-# 2.1 Record Type Consistency
+# 2.1 Record Type Consistency --------------------------------------------------
   
   AllPT$RT.Cons <- "Yes"
   AllPT$RT.Cons[AllPT$E.Class != AllPT$B.Class] <- "No"
@@ -51,7 +51,7 @@ createParcelHistory <- function(Parcel.List, Par.Geom, Beg.Year, End.Year){
   AllPT$RT.Cons[AllPT$B.Class == "A" & AllPT$E.Class == "C.A"] <- "Yes"
   AllPT$RT.Cons[AllPT$B.Class == "C.A" & AllPT$E.Class == "A"] <- "Yes"
 
-# 2.2 Parcel Type Consistency
+# 2.2 Parcel Type Consistency --------------------------------------------------
 
   AllPT$PT.Cons <- "No"
   AllPT$PT.Cons[AllPT$PType == "A" & 
@@ -62,12 +62,12 @@ createParcelHistory <- function(Parcel.List, Par.Geom, Beg.Year, End.Year){
                 AllPT$Topo.Type == "Lot Adj - Exp") |
                 (AllPT$Topo.Type == "New - Renamed" & AllPT$B.Use != 0)] <- "Yes"
 
-# 2.3 Determine Joint Consistency
+# 2.3 Determine Joint Consistency ----------------------------------------------
 
   AllPT$RPT.Cons <- "No"
   AllPT$RPT.Cons[AllPT$RT.Cons == "Yes" & AllPT$PT.Cons == "Yes"] <- "Yes"
 
-# 2.4 Split into RPT.Cons and Not
+# 2.4 Split into RPT.Cons and Not ----------------------------------------------
 
   C.rpt <- AllPT[AllPT$RPT.Cons == "Yes", ]
   NC.rpt <- AllPT[AllPT$RPT.Cons == "No", ]
