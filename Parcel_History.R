@@ -53,6 +53,8 @@ createParcelHistory <- function(Parcel.List, Par.Geom, Beg.Year, End.Year){
 
 # 2.2 Parcel Type Consistency --------------------------------------------------
 
+  AllPT$PType <- AllPT$Type
+  AllPT$Type <- NULL
   AllPT$PT.Cons <- "No"
   AllPT$PT.Cons[AllPT$PType == "A" & 
                 (AllPT$Topo.Type == "Consistent" | 
@@ -75,7 +77,7 @@ createParcelHistory <- function(Parcel.List, Par.Geom, Beg.Year, End.Year){
 ################################################################################
 # 3.0 Judge Structural Consistency of RPT.yes Parcels    -----------------------
 
-# 3.1 Split up Consistent                
+# 3.1 Split up Consistent ------------------------------------------------------               
 
   pc.R <- C.rpt[C.rpt$B.Class == "R", ]
   pc.K <- C.rpt[C.rpt$B.Class == "K", ]
@@ -83,7 +85,8 @@ createParcelHistory <- function(Parcel.List, Par.Geom, Beg.Year, End.Year){
   pc.A <- C.rpt[C.rpt$B.Class == "A" | C.rpt$B.Class == "C.A", ]
   pc.V <- C.rpt[C.rpt$B.Class == "V", ]
 
-# 3.2 Evaluate Residential Consistency
+# 3.2 Evaluate Residential Consistency -----------------------------------------
+
   pc.R$Str.Cons <- "No"
   pc.R$Str.Cons[pc.R$B.SF == pc.R$E.SF &
                 pc.R$B.YearBuilt == pc.R$E.YearBuilt &
@@ -91,7 +94,8 @@ createParcelHistory <- function(Parcel.List, Par.Geom, Beg.Year, End.Year){
                 pc.R$B.NbrBldgs == pc.R$E.NbrBldgs &
                 pc.R$B.aSF == pc.R$E.aSF] <- "Yes"
 
-# 3.3 Evaluate Condominium Consistency
+# 3.3 Evaluate Condominium Consistency -----------------------------------------
+
   if(dim(pc.K)[1] > 0){  
     pc.K$Str.Cons <- "No"
     pc.K$Str.Cons[(abs((pc.K$B.SF-pc.K$E.SF)/pc.K$B.SF) < .1)  &
@@ -99,28 +103,36 @@ createParcelHistory <- function(Parcel.List, Par.Geom, Beg.Year, End.Year){
                 pc.K$B.Units == pc.K$E.Units] <- "Yes"
   }
 
-# 3.4 Evaluate Apartment Consistency
-  pc.A$Str.Cons <- "No"
-  pc.A$Str.Cons[(abs((pc.A$B.SF-pc.A$E.SF)/pc.A$B.SF) < .1)  &
+# 3.4 Evaluate Apartment Consistency -------------------------------------------
+
+  if(dim(pc.A)[1] > 0){
+    pc.A$Str.Cons <- "No"
+    pc.A$Str.Cons[(abs((pc.A$B.SF-pc.A$E.SF)/pc.A$B.SF) < .1)  &
                 pc.A$B.YearBuilt == pc.A$E.YearBuilt &
                 pc.A$B.Units == pc.A$E.Units] <- "Yes"
+  }
+    
+# 3.5 Evaluate Commercial Consistency ------------------------------------------
 
-# 3.5 Evaluate Commercial Consistency
   pc.C$Str.Cons <- "No"
   pc.C$Str.Cons[(abs((pc.C$B.SF-pc.C$E.SF)/pc.C$B.SF) < .1)  &
                 pc.C$B.YearBuilt == pc.C$E.YearBuilt] <- "Yes"
 
-# 3.6 Label Vacant as Consistent
+# 3.6 Label Vacant as Consistent -----------------------------------------------
+
   pc.V$Str.Cons <- "Yes"
 
-# 3.7 Merge Back Together
+# 3.7 Merge Back Together ------------------------------------------------------
+
   all.pc <- rbind(pc.R, pc.K, pc.A, pc.C, pc.V)
 
-# 3.8 Merge with NC.rpt
+# 3.8 Merge with NC.rpt --------------------------------------------------------
+
   NC.rpt$Str.Cons <- "No"
   All.RPS <- rbind(all.pc,NC.rpt)
 
-# 3.9 Clean Up
+# 3.9 Clean Up -----------------------------------------------------------------
+
   rm(R.Crpt);rm(A.Crpt);rm(K.Crpt);rm(C.Crpt);rm(V.Crpt)
   rm(pc.R);rm(pc.A);rm(pc.K);rm(pc.C)
 
