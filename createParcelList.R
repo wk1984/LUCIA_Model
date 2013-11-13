@@ -10,24 +10,27 @@
 
 createParcelList <- function(Beg.Year, End.Year){
 
-  # 0.0 Set Global Parameters, Load Libraries and Files --------------------------
+# 0.0 Set Global Parameters, Load Libraries and Files --------------------------
 
-# 0.1 Load Libraries
+# 0.1 Load Libraries -----------------------------------------------------------
 
-library(RODBC)
-options(warn=-1)
+  library(RODBC)
+  options(warn=-1)
 
-# 0.2 Load Helper Files
+# 0.2 Load Helper Files --------------------------------------------------------
 
-source("c://Dropbox//Code//WA//KingCounty//K_CodingFunctions.R")
+  source("D://Code//R//General//R_Helpers//Spatial_Helpers.R")
+  source("D://Code//R//General//R_Helpers//Basic_Helpers.R")
+  source(paste0("D://Code//R//General//Geographic//WA//KingCounty//",
+                "Coding_Functions.R"))
 
 ################################################################################
 # 1.0 Prepare Residential Data   -----------------------------------------------
 
-# 1.1 Load Beginning Year Residential Data  
+# 1.1 Load Beginning Year Residential Data  ------------------------------------ 
   
   odbc <- odbcConnectAccess2007(paste0(
-    "C://Dropbox//Data//WA//King//Assessor//Annual//King", Beg.Year, ".accdb"))
+    "D://Data//WA//King//Assessor//King", Beg.Year, ".accdb"))
   B.resbldg <- sqlQuery(odbc, paste0("SELECT Major, Minor, SqFtTotLiving as SF,",
                                      "YrBuilt as YearBuilt, Condition,",
                                      "BldgNbr, NbrLivingUnits, Stories",
@@ -35,10 +38,10 @@ source("c://Dropbox//Code//WA//KingCounty//K_CodingFunctions.R")
   B.resbldg <- pinCreate(B.resbldg)
   odbcClose(odbc)
   
-# 1.2 Load End Year Residential Data  
+# 1.2 Load End Year Residential Data ------------------------------------------- 
   
   odbc <- odbcConnectAccess2007(paste0(
-    "C://Dropbox//Data//WA//King//Assessor//Annual//King", End.Year, ".accdb"))
+    "D://Data//WA//King//Assessor//King", End.Year, ".accdb"))
   E.resbldg <- sqlQuery(odbc, paste0("SELECT Major, Minor, SqFtTotLiving as SF,",
                                      " YrBuilt as YearBuilt, Condition,",
                                      " BldgNbr, NbrLivingUnits, Stories",
@@ -46,7 +49,7 @@ source("c://Dropbox//Code//WA//KingCounty//K_CodingFunctions.R")
   E.resbldg <- pinCreate(E.resbldg)
   odbcClose(odbc)
   
-# 1.3 Sum up Number of Buildings
+# 1.3 Sum up Number of Buildings -----------------------------------------------
   
   # 1.3.1 Beginning Year
   x <- as.data.frame(table(B.resbldg$PINX))
@@ -58,7 +61,7 @@ source("c://Dropbox//Code//WA//KingCounty//K_CodingFunctions.R")
   colnames(x) <- c("PINX", "NbrBldgs")
   erc <- merge(E.resbldg, x, by.x="PINX", by.y="PINX", all.x=T)
   
-# 1.4 Sum up Additional Dwelling Unit Living Units
+# 1.4 Sum up Additional Dwelling Unit Living Units -----------------------------
   
   # 1.4.1 Beginning Year
   x <- B.resbldg[B.resbldg$BldgNbr!=1,]
@@ -76,7 +79,7 @@ source("c://Dropbox//Code//WA//KingCounty//K_CodingFunctions.R")
   erc <- merge(erc, xu, by.x="PINX", by.y="PINX", all.x=T)
   erc$A.NbrUnits[is.na(erc$A.NbrUnits)] <- 0
   
-# 1.5 Sum up Additional Dwelling Unit Square Footage
+# 1.5 Sum up Additional Dwelling Unit Square Footage ---------------------------
   
   # 1.5.1 Beginning Year
   x <- B.resbldg[B.resbldg$BldgNbr!=1,]
@@ -94,7 +97,7 @@ source("c://Dropbox//Code//WA//KingCounty//K_CodingFunctions.R")
   erc <- merge(erc, xs, by.x="PINX", by.y="PINX", all.x=T)
   erc$A.SF[is.na(erc$A.SF)] <- 0
   
-# 1.6 Find most recent Additional Dwelling Unit
+# 1.6 Find most recent Additional Dwelling Unit --------------------------------
   
   # 1.6.1 Beginning Year
   x <- B.resbldg[B.resbldg$BldgNbr!=1,]
@@ -112,7 +115,7 @@ source("c://Dropbox//Code//WA//KingCounty//K_CodingFunctions.R")
   erc <- merge(erc, xy, by.x="PINX", by.y="PINX", all.x=T)
   erc$A.YB[is.na(erc$A.YB)] <- 0
   
-# 1.7 Trim to one record, rename fields
+# 1.7 Trim to one record, rename fields ----------------------------------------
   
   # 1.7.1 Beginning Year
   Beg.R <- brc[brc$BldgNbr==1,]
