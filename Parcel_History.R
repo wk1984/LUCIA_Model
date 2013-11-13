@@ -139,21 +139,25 @@ createParcelHistory <- function(Parcel.List, Par.Geom, Beg.Year, End.Year){
 ################################################################################
 # 4.0 Divide Parcels up for further analysis  ----------------------------------
 
-# 4.1 Split by RPS.Cons
+# 4.1 Split by RPS.Cons --------------------------------------------------------
+
   All.Cons <- All.RPS[All.RPS$RPT.Cons == "Yes" & All.RPS$Str.Cons == "Yes", ]
   All.NC <- All.RPS[All.RPS$RPT.Cons != "Yes" | All.RPS$Str.Cons != "Yes", ]
 
-# 4.2 Split NCs by RPT.Cons
+# 4.2 Split NCs by RPT.Cons ----------------------------------------------------
+
   NC.RPTyes <- All.NC[All.NC$RPT.Cons=="Yes", ]
   NC.RPTno <- All.NC[All.NC$RPT.Cons=="No", ]
 
-# 4.3 Divide RP.Yes into record types
+# 4.3 Divide RP.Yes into record types ------------------------------------------
+
   pc.R <- NC.RPTyes[NC.RPTyes$B.Class=="R",]
   pc.K <- NC.RPTyes[NC.RPTyes$B.Class=="K",]
   pc.A <- NC.RPTyes[NC.RPTyes$B.Class=="C.A" | NC.RPTyes$B.Class=="A",]
   pc.C <- NC.RPTyes[NC.RPTyes$B.Class=="C",]
 
-# 4.4 Add Fields to All.Cons
+# 4.4 Add Fields to All.Cons ---------------------------------------------------
+
   All.Cons$Chng.Type <- "None"
   All.Cons$Loss.Units <- 0
   All.Cons$Loss.SF <- 0
@@ -165,7 +169,8 @@ createParcelHistory <- function(Parcel.List, Par.Geom, Beg.Year, End.Year){
 ################################################################################
 # 5.0 Residential Structural Changes -------------------------------------------
 
-# 5.1 Label the individual changes to the structure(s)
+# 5.1 Label the individual changes to the structure(s) -------------------------
+
   pc.R$ChangeSum <- 0
   pc.R$MinusBldg <- 0
   pc.R$MinusBldg[pc.R$B.Bldgs > pc.R$E.Bldgs] <- 1
@@ -180,11 +185,13 @@ createParcelHistory <- function(Parcel.List, Par.Geom, Beg.Year, End.Year){
   pc.R$NewADU <- 0
   pc.R$NewADU[pc.R$E.aYB > Beg.Year] <- 1
 
-# 5.2 Sum up Changes
+# 5.2 Sum up Changes -----------------------------------------------------------
+
   pc.R$ChangeSum <- rowSums(pc.R[ ,(which(colnames(pc.R) == 
                                     "Str.Cons") + 1):dim(pc.R)[2]])
 
-# 5.3 Divide Off Those with only Assessor's Updates
+# 5.3 Divide Off Those with only Assessor's Updates ----------------------------
+
   pc.R.cons <- pc.R[pc.R$ChangeSum == 0, ]
   pc.R.cons$Use.Chng <- "None"
   pc.R.cons$Chng.Time <- 0
@@ -194,7 +201,8 @@ createParcelHistory <- function(Parcel.List, Par.Geom, Beg.Year, End.Year){
   pc.R.cons$Gain.Units <- 0
   pc.R.cons$Gain.SF <- 0
 
-# 5.4. Split off Those with Real Changes
+# 5.4. Split off Those with Real Changes ---------------------------------------
+
   nc.R <- pc.R[pc.R$ChangeSum != 0, ]
 
  # 5.4.1 Set up Variables
@@ -263,10 +271,12 @@ createParcelHistory <- function(Parcel.List, Par.Geom, Beg.Year, End.Year){
        RchangeFinder(pc.R.cons[rem,],"SqFtTotLiving", Beg.Year, End.Year)) 
   }
 
-# 5.5 Re-combine pc.R
+# 5.5 Re-combine pc.R ----------------------------------------------------------
+
   par.R <- rbind(pc.R.cons, nc.R)
 
-# 5.6 Check for negatives
+# 5.6 Check for negatives ------------------------------------------------------
+
   par.R$Gain.Units[par.R$Loss.Units < 0] <- -par.R$Loss.Units[
                                                 par.R$Loss.Units < 0]
   par.R$Loss.Units[par.R$Loss.Units < 0] <- 0
@@ -283,7 +293,8 @@ createParcelHistory <- function(Parcel.List, Par.Geom, Beg.Year, End.Year){
                                                 par.R$Gain.SF < 0]
   par.R$Gain.SF[par.R$Gain.SF < 0] <- 0
 
-# 5.7 Clean up Fields
+# 5.7 Clean up Fields ----------------------------------------------------------
+
   par.R$ChangeSum <- NULL
   par.R$MinusBldg <- NULL
   par.R$Rebuild <- NULL
