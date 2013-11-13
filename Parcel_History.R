@@ -1,49 +1,42 @@
-'###############################################################################
+################################################################################                                                                                                      ###                                                                          ###  
 #                                                                              #
-#  Parcel_History.R                                                            #
-#  - Most Recent Update:  3/20/2013                                            #
+#    LUCIA MODEL: Parcel_History                                               #
 #                                                                              #
-#  This file determine the parcel history of each parcel from both the         #
-#  beginning and the end year files as indicated by the user                   #
-#  It is part of the data cleaning process                                     #
+#        Compares the parcel geometry data from two years                      #                                                                                    ###          by Andy Krause                                                  ###
+#        To determine the changes to the parcel over that time                 #
 #                                                                              #
+#        Most Recent Update: 11/12/2013                                        #
+#                                                                              # 
 ###############################################################################'
 
-  Beg.Year <- 1999
-  End.Year <- 2013
-
-createParcelHistory <- function(Parcel.List, PG, Beg.Year, End.Year){
+createParcelHistory <- function(Parcel.List, Par.Geom, Beg.Year, End.Year){
 
 # 0.0 Set Global Parameters, Load Libraries and Files --------------------------
 
 # 0.1 Load Libraries
 
-  library(RODBC)
+  require(RODBC)
   options(warn=-1)
 
 # 0.2 Load Files
 
-  source("c://Dropbox//Code//WA//KingCounty//K_CodingFunctions.R")
-  source("c://Dropbox//Code//WA//KingCounty//PSS_Model//yearFix.R")
-  source("c://Dropbox//Code//WA//KingCounty//PSS_Model//createParcelList.R")
-  source("c://Dropbox//Code//WA//KingCounty//PSS_Model//AchangeFinder.R")
-  source("c://Dropbox//Code//WA//KingCounty//PSS_Model//RchangeFinder.R")
-  source("c://Dropbox//Code//WA//KingCounty//PSS_Model//CchangeFinder.R")
-  source("c://Dropbox//Code//WA//KingCounty//PSS_Model//PchangeFinder.R")
+  source("D://Code//R//General//R_Helpers//Spatial_Helpers.R")
+  source("D://Code//R//General//R_Helpers//Basic_Helpers.R")
+  source("D://Code//R//Research//LUCIA_Model//parcelFinder.R")  
+  source("D://Code//R//Research//LUCIA_Model//yearFix.R")
+  
+  #source("c://Dropbox//Code//WA//KingCounty//PSS_Model//createParcelList.R")
+  #source("c://Dropbox//Code//WA//KingCounty//PSS_Model//AchangeFinder.R")
+  #source("c://Dropbox//Code//WA//KingCounty//PSS_Model//RchangeFinder.R")
+  #source("c://Dropbox//Code//WA//KingCounty//PSS_Model//CchangeFinder.R")
+  #source("c://Dropbox//Code//WA//KingCounty//PSS_Model//PchangeFinder.R")
 
 ################################################################################
 # 1.0 Merge Parcel List and Parcel Geometry Data  ------------------------------
  
-# 1.1 Read in Geometry
-  PG <- read.table(paste0("C://dropbox//data//wa//seattle//geographic//",
-                         "ParcelGeometry.txt"), header=T)
-  colnames(PG)[which(colnames(PG)=="Type")] <- "PType"
-
-# 1.2 Develop Parcel.List
-  Parcel.List <- createParcelList(1999, 2013)
-
-# 1.3 Merge to the Parcel List
-  AllPT <- merge(PG, Parcel.List, by.x="PINX", by.y="PINX")
+# 1.1 Merge to the Parcel List
+  
+  AllPT <- merge(Par.Geom, Parcel.List, by.x="PINX", by.y="PINX")
 
 ################################################################################
 # 2.0 Assign Original Consistencies --------------------------------------------
