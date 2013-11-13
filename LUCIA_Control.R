@@ -92,19 +92,20 @@
   odbcClose(odbc)
 
 ################################################################################
-# 2.0 Calculate Parcel Topology
+# 2.0 Calculate Parcel Geometry and History ------------------------------------
 
 # 2.1 Select Area of Interest
 
   clip <- UVs[1,]
 
 # 2.2 Calculate Parcel Geometry
-  PG <- calculateGeometry(clip, Beg.Year, End.Year, beg.parcels, end.parcels, 
-                            B.Data, E.Data, .1, 3000)
 
+  Par.Geom <- calculateGeometry(clip, Beg.Year, End.Year, beg.parcels, 
+                                end.parcels, B.Data, E.Data, .1, 3000)
 
+# 2.3 Calculate
 
-
+  Par.Hist <- calculate
 
 
 
