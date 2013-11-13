@@ -98,8 +98,8 @@
       <data key="d6">
         <y:GenericNode configuration="com.yworks.flowchart.process">
           <y:Geometry height="40.0" width="165.0" x="381.0" y="220.0"/>
-          <y:Fill color="#FFFFFF" color2="#CCFFFF" transparent="false"/>
-          <y:BorderStyle color="#FF0000" type="line" width="1.0"/>
+          <y:Fill color="#CCFFFF" color2="#CCFFFF" transparent="false"/>
+          <y:BorderStyle color="#000000" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.701171875" modelName="custom" textColor="#000000" visible="true" width="102.0390625" x="31.48046875" y="10.6494140625">createParcelList.R<y:LabelModel>
               <y:SmartNodeLabelModel distance="4.0"/>
             </y:LabelModel>
@@ -353,7 +353,6 @@
       </data>
     </edge>
     <edge id="e13" source="n11" target="n12">
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
