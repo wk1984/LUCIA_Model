@@ -139,7 +139,7 @@ createParcelList <- function(Beg.Year, End.Year){
 ################################################################################  
 # 2.0 Prepare Apartment Data  -------------------------------------------------- 
   
-# 2.1 Load Beginning Year Data
+# 2.1 Load Beginning Year Data -------------------------------------------------
   
   odbc <- odbcConnectAccess2007(paste0(
     "C://Dropbox//Data//WA//King//Assessor//Annual//King", Beg.Year, ".accdb"))
@@ -149,7 +149,7 @@ createParcelList <- function(Beg.Year, End.Year){
   B.aptcomp <- pinCreate(B.aptcomp)
   odbcClose(odbc)
   
-# 2.2 Load End Year Data
+# 2.2 Load End Year Data -------------------------------------------------------
   
   odbc <- odbcConnectAccess2007(paste0(
     "C://Dropbox//Data//WA//King//Assessor//Annual//King", End.Year, ".accdb"))
@@ -159,7 +159,7 @@ createParcelList <- function(Beg.Year, End.Year){
   E.aptcomp <- pinCreate(E.aptcomp)
   odbcClose(odbc)
   
-# 2.3 Calculate Square Footage
+# 2.3 Calculate Square Footage -------------------------------------------------
   
   # 2.3.1 Beginning Year
   Beg.A <- B.aptcomp
@@ -171,7 +171,7 @@ createParcelList <- function(Beg.Year, End.Year){
   End.A$SF <- End.A$NbrUnits * End.A$AvgUnitSize
   End.A$AvgUnitSize <- NULL
   
-# 2.4 Rename Columns and add blank variables
+# 2.4 Rename Columns and add blank variables -----------------------------------
 
  # 2.4.1 Beginning Year
   colnames(Beg.A)[which(colnames(Beg.A)=="NbrStories")] <- "Stories"
@@ -196,7 +196,7 @@ createParcelList <- function(Beg.Year, End.Year){
 ################################################################################
 # 3.0 Prepare Condominium Data -------------------------------------------------  
 
-# 3.1 Load Beginning Year Data  
+# 3.1 Load Beginning Year Data-------------------------------------------------  
 
   odbc <- odbcConnectAccess2007(paste0(
     "C://Dropbox//Data//WA//King//Assessor//Annual//King", Beg.Year, ".accdb"))
@@ -206,7 +206,7 @@ createParcelList <- function(Beg.Year, End.Year){
   B.condocomp <- pinCreateCC(B.condocomp)
   odbcClose(odbc)
   
-# 3.2 Load End Year Data
+# 3.2 Load End Year Data -------------------------------------------------------
   
   odbc <- odbcConnectAccess2007(paste0(
     "C://Dropbox//Data//WA//King//Assessor//Annual//King", End.Year, ".accdb"))
@@ -217,7 +217,7 @@ createParcelList <- function(Beg.Year, End.Year){
   E.condocomp <- pinCreateCC(E.condocomp)
   odbcClose(odbc)
   
-# 3.3 Calculate Square Footage
+# 3.3 Calculate Square Footage -------------------------------------------------
   
   # 3.3.1 Beginning Year
   Beg.K <- B.condocomp
@@ -229,7 +229,7 @@ createParcelList <- function(Beg.Year, End.Year){
   End.K$SF <- End.K$NbrUnits * End.K$AvgUnitSize
   End.K$AvgUnitSize <- NULL
   
-# 3.4 Rename Columns and add blank variables
+# 3.4 Rename Columns and add blank variables -----------------------------------
   
   # 3.4.1 Beginning Year
   colnames(Beg.K)[which(colnames(Beg.K)=="NbrStories")] <- "Stories"
@@ -254,7 +254,8 @@ createParcelList <- function(Beg.Year, End.Year){
 ################################################################################
 # 4.0 Prepare Commerical Data  -------------------------------------------------
   
-# 4.1 Load Beginning Year Data  
+# 4.1 Load Beginning Year Data -------------------------------------------------  
+
   odbc <- odbcConnectAccess2007(paste0(
     "C://Dropbox//Data//WA//King//Assessor//Annual//King", Beg.Year, ".accdb"))
     
@@ -272,7 +273,8 @@ createParcelList <- function(Beg.Year, End.Year){
   B.commsect <- pinCreate(B.commsect)
   odbcClose(odbc)
    
-# 4.2 Load End Year Data  
+# 4.2 Load End Year Data  ------------------------------------------------------
+
   odbc <- odbcConnectAccess2007(paste0(
     "C://Dropbox//Data//WA//King//Assessor//Annual//King", End.Year, ".accdb"))
   E.parcel <- sqlQuery(odbc, paste0("SELECT Major, Minor, PresentUse,",
@@ -288,7 +290,7 @@ createParcelList <- function(Beg.Year, End.Year){
   E.commsect <- pinCreate(E.commsect)
   odbcClose(odbc)
   
-# 4.3 Sum up Number of Buildings
+# 4.3 Sum up Number of Buildings -----------------------------------------------
   
   # 4.3.1 Beginning Year
   x <- as.data.frame(table(B.commbldg$PINX))
@@ -302,7 +304,7 @@ createParcelList <- function(Beg.Year, End.Year){
   ecc <- merge(E.commbldg, x, by.x="PINX", by.y="PINX", all.x=T)
   ecc$SF[is.na(ecc$SF)] <- 0
   
-# 4.4 Sum up Additional Building Square Footage
+# 4.4 Sum up Additional Building Square Footage --------------------------------
   
   # 4.4.1 Beginning Year
   x <- B.commbldg[B.commbldg$BldgNbr!=1,]
@@ -320,7 +322,7 @@ createParcelList <- function(Beg.Year, End.Year){
   ecc <- merge(ecc, xs, by.x="PINX", by.y="PINX", all.x=T)
   ecc$A.SF[is.na(ecc$A.SF)] <- 0  
   
-# 4.5 Find most recent Additional Building
+# 4.5 Find most recent Additional Building -------------------------------------
   
   # 4.5.1 Beginning Year
   x <- B.commbldg[B.commbldg$BldgNbr!=1,]
@@ -338,7 +340,7 @@ createParcelList <- function(Beg.Year, End.Year){
   ecc <- merge(ecc, xy, by.x="PINX", by.y="PINX", all.x=T)
   ecc$A.YB[is.na(ecc$A.YB)] <- 0  
   
-# 4.6 Split up by mixed use
+# 4.6 Split up by mixed use ----------------------------------------------------
   
   # 4.6.1 Beginning Year
     
@@ -514,7 +516,7 @@ createParcelList <- function(Beg.Year, End.Year){
   End.C$PIN <- NULL
   End.C$BldgNbr <- NULL
   
-# 4.7 Eliminate Apartments ,Condos and ResBdlg from Commercial Structures
+# 4.7 Eliminate Apartments ,Condos and ResBdlg from Commercial Structures ------
   
  # 4.7.1 Beginning Year
   
@@ -603,15 +605,17 @@ createParcelList <- function(Beg.Year, End.Year){
 ################################################################################
 # 5.0 Merge R, A, K and C Data  ------------------------------------------------
   
-# 5.1 Merge Beginning Year  
+# 5.1 Merge Beginning Year  ----------------------------------------------------
+
   Beg.All <- rbind(Beg.R, Beg.A, Beg.C, Beg.K)
   Beg.All <- rmDup(Beg.All, "PINX")
 
-# 5.2 Merge End Year  
+# 5.2 Merge End Year  ----------------------------------------------------------
+
   End.All <- rbind(End.R, End.A, End.C, End.K)
   End.All <- rmDup(End.All, "PINX")
   
-# 5.3 Remove End Year duplicates  
+# 5.3 Remove End Year duplicates  ----------------------------------------------
   
   # 5.3.1 Identify and Split
   EX <- as.data.frame(table(End.All$PINX))
@@ -648,14 +652,17 @@ createParcelList <- function(Beg.Year, End.Year){
     }
   }  
 
-# 5.4 Bring back together  
+# 5.4 Bring back together  -----------------------------------------------------
+
   eno$Freq <- NULL
   eok$Freq <- NULL
   End.All <- rbind(eok, eno)
   
 ################################################################################
-# 6.0 Add to Parcel Data
+# 6.0 Add to Parcel Data -------------------------------------------------------
   
+# 6.1 Beginning Year -----------------------------------------------------------
+
   Beg.P <- B.parcel
   Beg.P <- merge(Beg.P, Beg.All, by.x="PINX", by.y="PINX", all.x=T)
   Beg.P$PIN <- NULL
@@ -669,7 +676,9 @@ createParcelList <- function(Beg.Year, End.Year){
   Beg.P$A.SF[is.na(Beg.P$A.SF)] <- 0
   Beg.P$A.YB[is.na(Beg.P$A.YB)] <- 0
   Beg.P$Class[is.na(Beg.P$Class)] <- "V"
-  
+ 
+# 6.2 End Year -----------------------------------------------------------------
+
   End.P <- E.parcel
   End.P <- merge(End.P, End.All, by.x="PINX", by.y="PINX", all.x=T)
   End.P$PIN <- NULL
@@ -687,7 +696,8 @@ createParcelList <- function(Beg.Year, End.Year){
 ################################################################################
 # 7.0 Merge into Parcel List  --------------------------------------------------
 
-# 7.1 Match End Parcels to Beginning parcels
+# 7.1 Match End Parcels to Beginning parcels -----------------------------------
+
   BegEnd <- merge(Beg.P, End.P, "PINX", "PINX", all.x=T)
   colnames(BegEnd) <- c("PINX","B.Use","B.Zone","B.LotSF","B.SF","B.YearBuilt",
                       "B.Cond","B.Units","B.Stories","B.NbrBldgs","B.aUnits",
@@ -695,10 +705,12 @@ createParcelList <- function(Beg.Year, End.Year){
                       "E.SF","E.YearBuilt","E.Cond","E.Units","E.Stories",
                       "E.NbrBldgs","E.aUnits","E.aSF","E.aYB","E.Class")
 
-# 7.2 Label as B (beginning only) or A (all years)  
+# 7.2 Label as B (beginning only) or A (all years)  ----------------------------
+
   BegEnd$RType <- ifelse(is.na(BegEnd$E.Class),"B","A")
 
-# 7.3 Fill in Empties
+# 7.3 Fill in Empties ----------------------------------------------------------
+
   BegEnd$E.Use[is.na(BegEnd$E.Use)] <- 0
   BegEnd$E.Zone[is.na(BegEnd$E.Zone)] <- "None"
   BegEnd$E.LotSF[is.na(BegEnd$E.LotSF)] <- 0
@@ -712,7 +724,8 @@ createParcelList <- function(Beg.Year, End.Year){
   BegEnd$E.aSF[is.na(BegEnd$E.aSF)] <- 0
   BegEnd$E.aYB[is.na(BegEnd$E.aYB)] <- 0
   
-# 7.4 Match Beginning Parcels to End Parcels
+# 7.4 Match Beginning Parcels to End Parcels -----------------------------------
+
   EndAdd <- merge(End.P, Beg.P,"PINX", "PINX", all.x=T)
   colnames(EndAdd) <- c("PINX","E.Use","E.Zone","E.LotSF","E.SF","E.YearBuilt",
                       "E.Cond","E.Units","E.Stories","E.NbrBldgs","E.aUnits",
@@ -720,11 +733,13 @@ createParcelList <- function(Beg.Year, End.Year){
                       "B.SF","B.YearBuilt","B.Cond","B.Units","B.Stories",
                       "B.NbrBldgs","B.aUnits","B.aSF","B.aYB","B.Class")
 
-# 7.5 Label as E (End only) or A (all years)  
+# 7.5 Label as E (End only) or A (all years)  ----------------------------------
+
   EndAdd$RType <- ifelse(is.na(EndAdd$B.Class), "E", "A")
   EndAdd <- EndAdd[EndAdd$RType == "E", ]
 
-# 7.6 Fill in Empties
+# 7.6 Fill in Empties ----------------------------------------------------------
+
   EndAdd$B.Use[is.na(EndAdd$B.Use)] <- 0
   EndAdd$B.Zone[is.na(EndAdd$B.Zone)] <- "None"
   EndAdd$B.LotSF[is.na(EndAdd$B.LotSF)] <- 0
@@ -738,14 +753,16 @@ createParcelList <- function(Beg.Year, End.Year){
   EndAdd$B.aSF[is.na(EndAdd$B.aSF)] <- 0
   EndAdd$B.aYB[is.na(EndAdd$B.aYB)] <- 0
    
-# 7.7 Comine A and B from 3.1 with only E from 3.2
+# 7.7 Comine A and B from 3.1 with only E from 3.2 -----------------------------
+
   Parcel.List <- rbind(BegEnd, EndAdd)
   Parcel.List$B.Class <- as.character(Parcel.List$B.Class)
   Parcel.List$B.Class[is.na(Parcel.List$B.Class)] <- "X"
   Parcel.List$E.Class <- as.character(Parcel.List$E.Class)
   Parcel.List$E.Class[is.na(Parcel.List$E.Class)] <- "X"
     
-# 7.8 Clean up Temp Data
+# 7.8 Clean up Temp Data -------------------------------------------------------
+
   rm(EndAdd);rm(BegEnd)
 
 return(Parcel.List)
