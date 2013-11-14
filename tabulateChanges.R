@@ -335,126 +335,135 @@ if(CType == "Size"){
 ################################################################################
 # 8.0 Use by Year --------------------------------------------------------------
 
-# if(CType=="Use.Time"){
-#  
-# # 8.1 Prepare the Yearly Variables  
-#   
-#   tmin <- min(PwC$Chng.Time[PwC$Chng.Time!=0])
-#   tmax <- max(PwC$Chng.Time)
-#   
-# # 8.2 Prepare the Use Based Variables  
-#   ludbc <- odbcConnectAccess2007(paste0(
-#     "C://Dropbox//Data//WA//King//Assessor//Codes//KingCountyCodes.accdb"))
-#   lu.codes <- sqlQuery(ludbc, "SELECT * FROM LandUseCodes")
-#   
-#   PwC <- merge(PwC, lu.codes[,c("Code","Type")],
-#                by.x="B.Use", by.y = "Code", all.x=T)
-#   colnames(PwC)[dim(PwC)[2]] <- "B.LUType"
-#   PwC <- merge(PwC, lu.codes[,c("Code","Type")],
-#                by.x="E.Use", by.y = "Code", all.x=T)
-#   colnames(PwC)[dim(PwC)[2]] <- "E.LUType"
-#   
-#   LT <- table(c(as.character(PwC$B.LUType),
-#                 as.character(PwC$E.LUType)))
-#   Use.Change <- matrix(ncol=10,nrow=length(LT)+1)
-#   
-# # 8.3 Set up capture Variable  
-#   UT.Change <- NULL
-#     
-# # 8.4 Loop through years  
-#   for(Z in tmin:tmax){
-#     
-#     # 8.4.1 Set to Current Year Data
-#     YY <- PwC[PwC$Chng.Time==Z,]
-# 
-#     # 8.4.2 Set up Capture Variable
-#     Use.Change <- matrix(ncol=10,nrow=length(LT)+1)
-#     
-#     # 8.4.3 Calculate Changes
-#     for(Y in 1:length(LT)){
-#       YB <- YY[YY$B.LUType==rownames(LT)[Y],]
-#       YE <- YY[YY$E.LUType==rownames(LT)[Y],]
-#       Use.Change[Y,1] <- length(which(YB$Loss.Units != 0))
-#       Use.Change[Y,2] <- -sum(YB$Loss.Units)
-#       Use.Change[Y,3] <- length(which(YE$Gain.Units != 0))   
-#       Use.Change[Y,4] <- sum(YE$Gain.Units)
-#       Use.Change[Y,5] <- sum(Use.Change[Y,c(2,4)])
-#       Use.Change[Y,6] <- length(which(YB$Loss.SF[YB$B.Class=="C"] != 0))
-#       Use.Change[Y,7] <- -sum(YB$Loss.SF[YB$B.Class=="C"])
-#       Use.Change[Y,8] <- length(which(YE$Gain.SF[YE$E.Class=="C"] != 0))   
-#       Use.Change[Y,9] <- sum(YE$Gain.SF[YE$E.Class=="C"])
-#       Use.Change[Y,10] <- sum(Use.Change[Y,c(7,9)])
-#     } 
-#     
-#     # 8.4.5 Summarize and Name Rows/Columns  
-#     Use.Change[(length(LT)+1),] <- colSums(Use.Change[1:length(LT),])
-#     colnames(Use.Change) <- cNames
-#     rownames(Use.Change) <- c(rownames(LT),"Totals")
-# 
-# # 8.5 Add to the list  
-# 
-#     UT.Change[[Z-1999]] <- Use.Change 
-#   }  
-#     
-# # 8.6 Return
-#   return(UT.Change)
-# }
-# 
-# ################################################################################
-# # 9.0 ChangeType by Year --------------------------------------------------------------
-# 
-# if(CType=="Process.Time"){
-#   
-# # 9.1 Prepare the Yearly Variables  
-#   
-#   tmin <- min(PwC$Chng.Time[PwC$Chng.Time!=0])
-#   tmax <- max(PwC$Chng.Time)
-#   
-# # 9.2 Prepare Change Type Variables
-#   
-#   chngs <- rownames(table(as.character(PwC$Chng.Type)))
-#   cut <- which(chngs=="A.C." | chngs=="None")
-#   if(length(cut)>0){chngs <- chngs[-cut,]}
-#   
-# # 9.3 Set up capture Variable  
-#   PT.Change <- NULL
-#   
-# # 9.4 Loop through years  
-#   for(Z in tmin:tmax){
-#     
-#     # 9.4.1 Set to Current Year Data
-#     ZZ <- PwC[PwC$Chng.Time==Z,]
-#   
-#     # 9.4.2 Set up Capture Variable
-#     Process.Change <- matrix(ncol=10,nrow=length(chngs)+1)
-#   
-#     # 9.4.3 calc changes
-#     for(Y in 1:length(chngs)){
-#       YY <- ZZ[ZZ$Chng.Type==chngs[Y],]
-#       Process.Change[Y,1] <- length(which(YY$Loss.Units != 0))
-#       Process.Change[Y,2] <- -sum(YY$Loss.Units)
-#       Process.Change[Y,3] <- length(which(YY$Gain.Units != 0))
-#       Process.Change[Y,4] <- sum(YY$Gain.Units)
-#       Process.Change[Y,5] <- sum(Process.Change[Y,c(2,4)])
-#       Process.Change[Y,6] <- length(which(YY$Loss.SF[YY$B.Class=="C"] != 0))
-#       Process.Change[Y,7] <- -sum(YY$Loss.SF[YY$B.Class=="C"])
-#       Process.Change[Y,8] <- length(which(YY$Gain.SF[YY$E.Class=="C"] != 0)) 
-#       Process.Change[Y,9] <- sum(YY$Gain.SF[YY$E.Class=="C"])
-#       Process.Change[Y,10] <- sum(Process.Change[Y,c(7,9)])
-#     }
-#     
-#     # 9.4.4 Summarize and Add Row Names    
-#     Process.Change[length(chngs)+1,] <- colSums(Process.Change[1:length(chngs),])
-#     colnames(Process.Change) <- cNames
-#     rownames(Process.Change) <- c(chngs,"Totals")
-#     
-#     # 9.5 Add to List  
-#     PT.Change[[Z-1999]] <- Process.Change 
-#   }
-# # 9.6 Return
-#   return(PT.Change)
-# }  
-# 
+if(CType == "Use.Time"){
+ 
+# 8.1 Prepare the Yearly Variables  --------------------------------------------
+  
+  tmin <- min(PwC$Chng.Time[PwC$Chng.Time != 0])
+  tmax <- max(PwC$Chng.Time)
+  
+# 8.2 Prepare the Use Based Variables ------------------------------------------  
+
+  ludbc <- odbcConnectAccess2007(paste0(
+    "C://Dropbox//Data//WA//King//Assessor//Codes//KingCountyCodes.accdb"))
+  lu.codes <- sqlQuery(ludbc, "SELECT * FROM LandUseCodes")
+  
+  PwC <- merge(PwC, lu.codes[,c("Code", "Type")],
+               by.x="B.Use", by.y = "Code", all.x=T)
+  colnames(PwC)[dim(PwC)[2]] <- "B.LUType"
+  PwC <- merge(PwC, lu.codes[ ,c("Code", "Type")],
+               by.x="E.Use", by.y = "Code", all.x=T)
+  colnames(PwC)[dim(PwC)[2]] <- "E.LUType"
+  
+  LT <- table(c(as.character(PwC$B.LUType),
+                as.character(PwC$E.LUType)))
+  Use.Change <- matrix(ncol=10, nrow=length(LT) + 1)
+  
+# 8.3 Set up capture Variable   ------------------------------------------------
+ 
+  UT.Change <- NULL
+    
+# 8.4 Loop through years  ------------------------------------------------------
+
+  for(Z in tmin:tmax){
+    
+    # 8.4.1 Set to Current Year Data
+    YY <- PwC[PwC$Chng.Time == Z, ]
+
+    # 8.4.2 Set up Capture Variable
+    Use.Change <- matrix(ncol=10, nrow=length(LT) + 1)
+    
+    # 8.4.3 Calculate Changes
+    for(Y in 1:length(LT)){
+      YB <- YY[YY$B.LUType == rownames(LT)[Y], ]
+      YE <- YY[YY$E.LUType == rownames(LT)[Y], ]
+      Use.Change[Y, 1] <- length(which(YB$Loss.Units != 0))
+      Use.Change[Y, 2] <- -sum(YB$Loss.Units)
+      Use.Change[Y, 3] <- length(which(YE$Gain.Units != 0))   
+      Use.Change[Y, 4] <- sum(YE$Gain.Units)
+      Use.Change[Y, 5] <- sum(Use.Change[Y, c(2, 4)])
+      Use.Change[Y, 6] <- length(which(YB$Loss.SF[YB$B.Class == "C"] != 0))
+      Use.Change[Y, 7] <- -sum(YB$Loss.SF[YB$B.Class == "C"])
+      Use.Change[Y, 8] <- length(which(YE$Gain.SF[YE$E.Class == "C"] != 0))   
+      Use.Change[Y, 9] <- sum(YE$Gain.SF[YE$E.Class == "C"])
+      Use.Change[Y, 10] <- sum(Use.Change[Y, c(7, 9)])
+    } 
+    
+    # 8.4.5 Summarize and Name Rows/Columns  
+    Use.Change[(length(LT) + 1),] <- colSums(Use.Change[1:length(LT), ])
+    colnames(Use.Change) <- cNames
+    rownames(Use.Change) <- c(rownames(LT),"Totals")
+
+# 8.5 Add to the list  ---------------------------------------------------------
+
+    UT.Change[[Z - 1999]] <- Use.Change 
+  }  
+    
+# 8.6 Return -------------------------------------------------------------------
+  return(UT.Change)
+}
+
+################################################################################
+# 9.0 ChangeType by Year -------------------------------------------------------
+
+if(CType == "Process.Time"){
+  
+# 9.1 Prepare the Yearly Variables ---------------------------------------------  
+  
+  tmin <- min(PwC$Chng.Time[PwC$Chng.Time != 0])
+  tmax <- max(PwC$Chng.Time)
+  
+# 9.2 Prepare Change Type Variables --------------------------------------------
+  
+  chngs <- rownames(table(as.character(PwC$Chng.Type)))
+  cut <- which(chngs == "A.C." | chngs == "None")
+  if(length(cut) > 0){chngs <- chngs[-cut, ]}
+  
+# 9.3 Set up capture Variable  -------------------------------------------------
+  
+  PT.Change <- NULL
+  
+# 9.4 Loop through years  ------------------------------------------------------
+
+  for(Z in tmin:tmax){
+    
+    # 9.4.1 Set to Current Year Data
+    ZZ <- PwC[PwC$Chng.Time == Z, ]
+  
+    # 9.4.2 Set up Capture Variable
+    Process.Change <- matrix(ncol=10, nrow=length(chngs) + 1)
+  
+    # 9.4.3 calc changes
+    for(Y in 1:length(chngs)){
+      YY <- ZZ[ZZ$Chng.Type == chngs[Y], ]
+      Process.Change[Y, 1] <- length(which(YY$Loss.Units != 0))
+      Process.Change[Y, 2] <- -sum(YY$Loss.Units)
+      Process.Change[Y, 3] <- length(which(YY$Gain.Units != 0))
+      Process.Change[Y, 4] <- sum(YY$Gain.Units)
+      Process.Change[Y, 5] <- sum(Process.Change[Y, c(2, 4)])
+      Process.Change[Y, 6] <- length(which(YY$Loss.SF[YY$B.Class == "C"] != 0))
+      Process.Change[Y, 7] <- -sum(YY$Loss.SF[YY$B.Class == "C"])
+      Process.Change[Y, 8] <- length(which(YY$Gain.SF[YY$E.Class == "C"] != 0)) 
+      Process.Change[Y, 9] <- sum(YY$Gain.SF[YY$E.Class == "C"])
+      Process.Change[Y, 10] <- sum(Process.Change[Y, c(7, 9)])
+    }
+    
+    # 9.4.4 Summarize and Add Row Names    
+    Process.Change[length(chngs) + 1, ] <- colSums(
+                                            Process.Change[1:length(chngs), ])
+    colnames(Process.Change) <- cNames
+    rownames(Process.Change) <- c(chngs, "Totals")
+    
+# 9.5 Add to List  -------------------------------------------------------------
+
+    PT.Change[[Z - 1999]] <- Process.Change 
+  }
+
+# 9.6 Return -------------------------------------------------------------------
+
+  return(PT.Change)
+}  
+
 # ################################################################################
 # # 10.0 Size by Year --------------------------------------------------------------
 # 
