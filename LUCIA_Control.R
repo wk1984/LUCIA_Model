@@ -23,6 +23,7 @@
               "Coding_Functions.R"))  
   source("D://Code//R//Research//LUCIA_Model//Parcel_Geometry.R")
   source("D://Code//R//Research//LUCIA_Model//Parcel_History.R")
+  source("D://Code//R//Research//LUCIA_Model//tabulateChanges.R")
 
 # To Come
   #source("c://Dropbox//Code//WA//KingCounty//PSS_Model//Tabular_Change.R")
@@ -113,11 +114,23 @@
   Par.Hist <- createParcelHistory(Parcel.List, Par.Geom, Beg.Year, End.Year)
 
 ################################################################################
-# # 4.0 Tabular Changes ----------------------------------------------------------
-# 
-# Change.Table <- tabulateChange(clip, beg.parcels, end.parcels, PH,
-#                               Beg.Year, End.Year, CType="Raw")
-# 
-# 
+# # 3.0 Calculate Raw Tabular Changes ------------------------------------------
+ 
+  Change.Table <- tabulateChanges(clip, beg.parcels, end.parcels, Par.Hist,
+                               Beg.Year, End.Year, CType="Raw")
+ 
+################################################################################
+# 4.0 Calculate Analytical Tables ----------------------------------------------
 
+# 4.1 One dimensional Analysis -------------------------------------------------
 
+  Size.Change <- tabulateChanges(clip, beg.parcels, end.parcels, Par.Hist,
+                              Beg.Year, End.Year, CType="Size",
+                              par=list(c(5, 25, 100), c(5000, 50000)))
+
+# 4.2 Two dimensional analysis -------------------------------------------------
+
+  PT.Change <- tabulateChanges(clip, beg.parcels, end.parcels, Par.Hist,
+                            Beg.Year, End.Year, CType="Process.Time")
+
+################################################################################
