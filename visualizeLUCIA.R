@@ -75,7 +75,8 @@ changePlot  <- function(parcels, clip, change.file, break.field,
 
 # 3.0 Plot Shapefiles in RGL ---------------------------------------------------
  
-rgl2dPlot <- function(parcel, height, r.col, lWd, bg.color, toAdd=FALSE){
+rgl2dPlot <- function(parcel, height=10, r.col=1, lWd=1, bg.color="white"
+                      , toAdd=FALSE){
   
   # Remove road parcels, if any
   parcel <- parcel[substr(parcel@data$PINX, 9, 12) != "5555", ] 
@@ -95,6 +96,25 @@ rgl2dPlot <- function(parcel, height, r.col, lWd, bg.color, toAdd=FALSE){
 }
 
 # 4.0 Plot Structures in RGL ---------------------------------------------------
+
+rgl3dPlot <- function(build.parcels, chng.table, b.SF, b.ESF, b.Height,
+                      b.StoryHeight, b.col="white", b.alpha=.5, b.roof=F){
+  
+ # add data to table
+ build.parcels <- mergeShapeFile(build.parcels, chng.table, "PINX", "PINX",
+                                 allX=F)
+  
+ # find Offset
+  build.me <- findOffset(build.parcels, SF=b.SF, Height = b.Height
+                         , ESF = b.ESF)
+  
+ # extract stories
+  stories <- build.me@data[,which(names(build.me@data)==b.Height)]
+  
+ # plot buildings
+  rgl.polygon(build.me, stories * b.StoryHeight, b.col, b.alpha,
+            build.me@data$Offset, roof=b.roof)
+}
 
 
 
