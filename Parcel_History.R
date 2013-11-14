@@ -601,14 +601,16 @@ if(dim(pc.K)[1] > 0){
  # 8.3 Divide Off Those with only Assessor's Updates ---------------------------
 
   pc.C.cons <- pc.C[pc.C$ChangeSum==0, ]
-  pc.C.cons$Use.Chng <- "None"
-  pc.C.cons$Chng.Type <- "A.C."
-  pc.C.cons$Chng.Time <- 0
-  pc.C.cons$Loss.Units <- 0
-  pc.C.cons$Loss.SF <- 0
-  pc.C.cons$Gain.Units <- 0
-  pc.C.cons$Gain.SF <- 0
-  
+  if(dim(pc.C.cons)[1] > 0){
+    pc.C.cons$Use.Chng <- "None"
+    pc.C.cons$Chng.Type <- "A.C."
+    pc.C.cons$Chng.Time <- 0
+    pc.C.cons$Loss.Units <- 0
+    pc.C.cons$Loss.SF <- 0
+    pc.C.cons$Gain.Units <- 0
+    pc.C.cons$Gain.SF <- 0
+  }
+
   # 8.4 Split off Those with Real Changes --------------------------------------
 
   nc.C <- pc.C[pc.C$ChangeSum!=0, ]
@@ -1278,23 +1280,25 @@ if(dim(valAC.K)[1] > 0){
 # 12.7 Deal with X parcels  ----------------------------------------------------
 
   # 12.7.2 Set Change Type
-  valAC.X$Use.Chng <- "X_to_R"
-  valAC.X$Use.Chng[valAC.X$E.Class=="A" | 
+  if(dim(valAC.X)[1] > 1){
+    valAC.X$Use.Chng <- "X_to_R"
+    valAC.X$Use.Chng[valAC.X$E.Class=="A" | 
                     valAC.X$E.Class=="C.A" ] <- "X_to_A"
-  valAC.X$Use.Chng[valAC.X$E.Class=="K"] <- "X_to_K"
-  valAC.X$Use.Chng[valAC.X$E.Class=="C"] <- "X_to_C"
-  valAC.X$Use.Chng[valAC.X$E.Class=="V"] <- "X_to_V"
+    valAC.X$Use.Chng[valAC.X$E.Class=="K"] <- "X_to_K"
+    valAC.X$Use.Chng[valAC.X$E.Class=="C"] <- "X_to_C"
+    valAC.X$Use.Chng[valAC.X$E.Class=="V"] <- "X_to_V"
 
-  # 12.7.3 Set Loss Units and Loss Amount
-  valAC.X$Loss.Units <- 0
-  valAC.X$Loss.SF <- 0 
+   # 12.7.3 Set Loss Units and Loss Amount
+    valAC.X$Loss.Units <- 0
+    valAC.X$Loss.SF <- 0 
 
   # 12.7.4 Set Gain Units based on Change Type
-  valAC.X$Gain.Units <- 0
-  valAC.X$Gain.SF <- 0
-  valAC.X$Chng.Time <- 0
-  valAC.X$Chng.Type <- "X"
-
+    valAC.X$Gain.Units <- 0
+    valAC.X$Gain.SF <- 0
+    valAC.X$Chng.Time <- 0
+    valAC.X$Chng.Type <- "X"
+  }
+    
  # 12.7.5 Work on X to Res Changes
   x2r <- which(valAC.X$Use.Chng == "X_to_R")
   if(length(x2r)>0){
@@ -1843,6 +1847,7 @@ if(dim(Arc.K)[1] == 0){
 
 # 14.2 Deal with Residential ---------------------------------------------------
  
+if(dim(Anc.R)[1] > 0){
  # 14.2.1 Label Use.Chng
   Anc.R$Use.Chng <- "R_to_C"
   Anc.R$Use.Chng[Anc.R$E.Class=="A" | Anc.R$E.Class=="C.A" ] <- "R_to_A"
@@ -1934,9 +1939,12 @@ if(dim(Arc.K)[1] == 0){
                                      ,"PresentUse",Beg.Year,End.Year))          
     Anc.R$Chng.Type[r2x] <- "A.C."    
   }
+}
 
 # 14.3 Label Apartment Properties ----------------------------------------------
 
+if(dim(Anc.A)[1] > 0){
+  
  # 14.3.1 Set Change Type
   Anc.A$Use.Chng <- "A_to_R"
   Anc.A$Use.Chng[Anc.A$E.Class=="A" | 
@@ -2033,7 +2041,8 @@ if(dim(Arc.K)[1] == 0){
                                     ,"PresentUse",Beg.Year,End.Year))          
     Anc.A$Chng.Type[a2x] <- "A.C."    
   }
-
+}
+  
 # 14.4 Deal with Condo parcels -------------------------------------------------
 
 if(dim(Anc.K)[1]> 0){
@@ -2138,6 +2147,8 @@ if(dim(Anc.K)[1]> 0){
 
 # 14.5 Commercial Properties ---------------------------------------------------
 
+if(dim(Anc.C)[1] > 0){
+  
  # 14.5.1 Set Change Type
   Anc.C$Use.Chng <- "C_to_R"
   Anc.C$Use.Chng[Anc.C$E.Class=="A" | 
@@ -2238,8 +2249,11 @@ if(dim(Anc.K)[1]> 0){
     Anc.C$Chng.Time[c2x] <- yearFix(changeFinder(Anc.C[c2x,]
                                      ,"PresentUse",Beg.Year,End.Year))          
   }
+}
 
 # 14.6 Vacant Properties -------------------------------------------------------
+
+if(dim(Anc.V)[1] > 0){
 
  # 14.6.1 Set Change Type
   Anc.V$Use.Chng <- "V_to_R"
@@ -2318,6 +2332,7 @@ if(dim(Anc.K)[1]> 0){
     Anc.V$Chng.Time[v2x] <- yearFix(PchangeFinder(Anc.C[v2x,]
                                 ,"PresentUse",Beg.Year,End.Year))          
   }
+}
 
 # 14.7 Recombine ---------------------------------------------------------------
 
@@ -2791,6 +2806,8 @@ if(dim(Anc.K)[1] == 0){
   Bnr.del <- Bnr[Bnr$Topo.Type == "Delete - Join",]
   Bnr <- Bnr[Bnr$Topo.Type != "Delete - Join",]
   
+if(dim(Bnr)[1] > 0){
+  
   re <- 0
   All.A$Match <- 0
   Bnr.del$Match <- 0
@@ -2833,12 +2850,15 @@ if(dim(Anc.K)[1] == 0){
 
   Bnr$Match <- NULL
   Bnr$Source <- "Bnr" 
+}
 
 ################################################################################
 # 18.0 Deal with Parcels not existing at the Beg.Year    -----------------------
 
   Enr <- val.E
 
+if(dim(Enr)[1] > 0){
+  
   Enr$Chng.Type <- "None"
   Enr$Chng.Type[Enr$E.YearBuilt >= Beg.Year] <- "Redev"
 
@@ -2860,6 +2880,7 @@ if(dim(Anc.K)[1] == 0){
   Enr$Match <- NULL
   Enr$Prev <- NULL
   Enr$Source <- "Enr"
+}
 
 ################################################################################
 # 19.0 Combine all -------------------------------------------------------------
@@ -2869,8 +2890,8 @@ if(dim(Anc.K)[1] == 0){
   All.A$Count.Type <- "A"
   BE.Match$Count.Type <- "A"
   BE.Split$Count.Type <- "A"
-  Bnr$Count.Type <- "B"
-  Enr$Count.Type <- "E"
+  if(dim(Bnr)[1] > 0){Bnr$Count.Type <- "B"}
+  if(dim(Enr)[1] > 0){Enr$Count.Type <- "E"}
 
 # 19.2 Combine all
   All.PH <- rbind(All.A, BE.Match, BE.Split, Bnr, Enr)
@@ -2921,6 +2942,8 @@ if(dim(Anc.K)[1] == 0){
     All.PH$PINX=="..8590400545"]
   All.PH$Chng.Type[All.PH$PINX=="..8590400545"] <- "A.C."
   All.PH$Use.Chng[All.PH$PINX=="..8590400545"] <- "None"
+
+# 20.0 Return Values -----------------------------------------------------------
 
 return(All.PH)
 }    
