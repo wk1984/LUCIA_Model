@@ -89,237 +89,252 @@ tabulateChanges <- function(clip.shp, beg.parcels, end.parcels,
   if(CType == "Raw") return(PwC)
  
 ################################################################################
-# # 3.0 Tally Overall Changes ----------------------------------------------------  
-#    
-#  if(CType == "All"){
-#   
-# 
-# # 3.1 Calculate Changes --------------------------------------------------------
-#     
-#    All.Change <- NULL
-#    All.Change[1] <- length(which(PwC$Loss.Units != 0))
-#    All.Change[2] <- -sum(PwC$Loss.Units)
-#    All.Change[3] <- length(which(PwC$Gain.Units != 0))
-#    All.Change[4] <- sum(PwC$Gain.Units)
-#    All.Change[5] <- All.Change[2] + All.Change[4]
-#    
-#    All.Change[6] <- length(which(PwC$Loss.SF[PwC$B.Class=="C"] != 0))
-#    All.Change[7] <- -sum(PwC$Loss.SF[PwC$B.Class=="C"])
-#    All.Change[8] <- length(which(PwC$Gain.SF[PwC$E.Class=="C"] != 0)) 
-#    All.Change[9] <- sum(PwC$Gain.SF[PwC$E.Class=="C"])
-#    All.Change[10] <- All.Change[7] + All.Change[9]
-# 
-# # 3.2 Return Value -------------------------------------------------------------
-# 
-#    return(All.Change)   
-#  }
-#      
+# 3.0 Tally Overall Changes ----------------------------------------------------  
+    
+if(CType == "All"){
+   
+ 
+# 3.1 Calculate Changes --------------------------------------------------------
+     
+   All.Change <- NULL
+   All.Change[1] <- length(which(PwC$Loss.Units != 0))
+   All.Change[2] <- -sum(PwC$Loss.Units)
+   All.Change[3] <- length(which(PwC$Gain.Units != 0))
+   All.Change[4] <- sum(PwC$Gain.Units)
+   All.Change[5] <- All.Change[2] + All.Change[4]
+   
+   All.Change[6] <- length(which(PwC$Loss.SF[PwC$B.Class == "C"] != 0))
+   All.Change[7] <- -sum(PwC$Loss.SF[PwC$B.Class == "C"])
+   All.Change[8] <- length(which(PwC$Gain.SF[PwC$E.Class == "C"] != 0)) 
+   All.Change[9] <- sum(PwC$Gain.SF[PwC$E.Class == "C"])
+   All.Change[10] <- All.Change[7] + All.Change[9]
+
+# 3.2 Return Value -------------------------------------------------------------
+
+   return(All.Change)   
+ }
+     
+
+###############################################################################
+#4.0 Tally Changes over TIme --------------------------------------------------
+  
+ if(CType == "Time"){
+
+# 4.1 Set up Variables ---------------------------------------------------------
+   
+   tmin <- 2000
+   tmax <- max(PH$Chng.Time)
+   Time.Change <- matrix(ncol=10, nrow=(length(tmin:tmax) + 1))
+   
+# 4.2 Calculate Changes --------------------------------------------------------
+   
+   for(Y in tmin:tmax){
+     YY <- PwC[PwC$Chng.Time == Y, ]
+     Time.Change[Y - (tmin - 1), 1] <- length(which(YY$Loss.Units != 0))
+     Time.Change[Y - (tmin - 1), 2] <- -sum(YY$Loss.Units)
+     Time.Change[Y - (tmin - 1), 3] <- length(which(YY$Gain.Units != 0))
+     Time.Change[Y - (tmin - 1), 4] <- sum(YY$Gain.Units)
+     Time.Change[Y - (tmin - 1), 5] <- sum(Time.Change[Y - (tmin - 1), c(2, 4)])
+     Time.Change[Y - (tmin - 1), 6] <- length(which(
+                                          YY$Loss.SF[YY$B.Class == "C"] != 0))
+     Time.Change[Y - (tmin - 1), 7] <- -sum(YY$Loss.SF[YY$B.Class == "C"])
+     Time.Change[Y - (tmin - 1), 8] <- length(which(
+                                          YY$Gain.SF[YY$E.Class == "C"] != 0)) 
+     Time.Change[Y - (tmin - 1), 9] <- sum(YY$Gain.SF[YY$E.Class == "C"])
+     Time.Change[Y - (tmin - 1), 10] <- sum(Time.Change[Y - (tmin - 1),
+                                                              c(7, 9)])
+   }
+  
+# 4.3 Summarize and Names Rows/Columns -----------------------------------------
+   
+   Time.Change[length(tmin:tmax) + 1, ] <- colSums(
+                                    Time.Change[1:length(tmin:tmax), ])
+   colnames(Time.Change) <- cNames
+   rownames(Time.Change) <- c(tmin:tmax, "Totals")
+
+# 4.4 Return Values ------------------------------------------------------------
+ 
+   return(Time.Change)
+ }
+ 
+################################################################################
+# 5.0 Tally Changes by Process   -----------------------------------------------
+
+ if(CType == "Process"){
+  
+# 5.1 Set up Variables ---------------------------------------------------------
+   
+  chngs <- rownames(table(as.character(PwC$Chng.Type)))
+  cut <- which(chngs == "A.C." | chngs == "None")
+  if(length(cut) > 0){chngs <- chngs[-cut, ]}
+  Process.Change <- matrix(ncol=10, nrow=length(chngs) + 1)
+  
+# 5.2 Calculate Changes  -------------------------------------------------------
+
+   for(Y in 1:length(chngs)){
+    YY <- PwC[PwC$Chng.Type == chngs[Y], ]
+    Process.Change[Y, 1] <- length(which(YY$Loss.Units != 0))
+    Process.Change[Y, 2] <- -sum(YY$Loss.Units)
+    Process.Change[Y, 3] <- length(which(YY$Gain.Units != 0))
+    Process.Change[Y, 4] <- sum(YY$Gain.Units)
+    Process.Change[Y, 5] <- sum(Process.Change[Y, c(2, 4)])
+    Process.Change[Y, 6] <- length(which(YY$Loss.SF[YY$B.Class == "C"] != 0))
+    Process.Change[Y, 7] <- -sum(YY$Loss.SF[YY$B.Class == "C"])
+    Process.Change[Y, 8] <- length(which(YY$Gain.SF[YY$E.Class == "C"] != 0)) 
+    Process.Change[Y, 9] <- sum(YY$Gain.SF[YY$E.Class == "C"])
+    Process.Change[Y, 10] <- sum(Process.Change[Y, c(7, 9)])
+   }
+  
+# 5.3 Summarize and Name Rows/Columns  -----------------------------------------
+
+  Process.Change[length(chngs) + 1, ] <- colSums(
+                                           Process.Change[1:length(chngs), ])
+  colnames(Process.Change) <- cNames
+  rownames(Process.Change) <- c(chngs, "Totals")
+  
+# 5.4 Return Values ------------------------------------------------------------
+
+  return(Process.Change)
+ }
 
 ################################################################################
-# 4.0 Tally Changes over TIme --------------------------------------------------
-#   
-#  if(CType=="Time"){
-# 
-# # 4.1 Set up Variables
-#    
-#    tmin <- 2000
-#    tmax <- max(PH$Chng.Time)
-#    Time.Change <- matrix(ncol=10,nrow=(length(tmin:tmax)+1))
-#    
-# # 4.2 Calculate Changes
-#    
-#    for(Y in tmin:tmax){
-#      YY <- PwC[PwC$Chng.Time==Y,]
-#      Time.Change[Y-(tmin-1),1] <- length(which(YY$Loss.Units != 0))
-#      Time.Change[Y-(tmin-1),2] <- -sum(YY$Loss.Units)
-#      Time.Change[Y-(tmin-1),3] <- length(which(YY$Gain.Units != 0))
-#      Time.Change[Y-(tmin-1),4] <- sum(YY$Gain.Units)
-#      Time.Change[Y-(tmin-1),5] <- sum(Time.Change[Y-(tmin-1),c(2,4)])
-#      Time.Change[Y-(tmin-1),6] <- length(which(YY$Loss.SF[YY$B.Class=="C"] != 0))
-#      Time.Change[Y-(tmin-1),7] <- -sum(YY$Loss.SF[YY$B.Class=="C"])
-#      Time.Change[Y-(tmin-1),8] <- length(which(YY$Gain.SF[YY$E.Class=="C"] != 0)) 
-#      Time.Change[Y-(tmin-1),9] <- sum(YY$Gain.SF[YY$E.Class=="C"])
-#      Time.Change[Y-(tmin-1),10] <- sum(Time.Change[Y-(tmin-1),c(7,9)])
-#    }
-#   
-# # 4.3 Summarize and Names Rows/Columns
-#    
-#    Time.Change[length(tmin:tmax)+1,] <- colSums(Time.Change[1:length(tmin:tmax),])
-#    colnames(Time.Change) <- cNames
-#    rownames(Time.Change) <- c(tmin:tmax,"Totals")
-# 
-# # 4.4 Return Values
-#    return(Time.Change)
-#  }
-#  
-# ################################################################################
-# # 5.0 Tally Changes by Process   -----------------------------------------------
-# 
-#  if(CType=="Process"){
-#   
-# # 5.1 Set up Variables
-#    
-#   chngs <- rownames(table(as.character(PwC$Chng.Type)))
-#   cut <- which(chngs=="A.C." | chngs=="None")
-#   if(length(cut)>0){chngs <- chngs[-cut,]}
-#   Process.Change <- matrix(ncol=10,nrow=length(chngs)+1)
-#   
-# # 5.2 Calculate Changes  
-#    for(Y in 1:length(chngs)){
-#     YY <- PwC[PwC$Chng.Type==chngs[Y],]
-#     Process.Change[Y,1] <- length(which(YY$Loss.Units != 0))
-#     Process.Change[Y,2] <- -sum(YY$Loss.Units)
-#     Process.Change[Y,3] <- length(which(YY$Gain.Units != 0))
-#     Process.Change[Y,4] <- sum(YY$Gain.Units)
-#     Process.Change[Y,5] <- sum(Process.Change[Y,c(2,4)])
-#     Process.Change[Y,6] <- length(which(YY$Loss.SF[YY$B.Class=="C"] != 0))
-#     Process.Change[Y,7] <- -sum(YY$Loss.SF[YY$B.Class=="C"])
-#     Process.Change[Y,8] <- length(which(YY$Gain.SF[YY$E.Class=="C"] != 0)) 
-#     Process.Change[Y,9] <- sum(YY$Gain.SF[YY$E.Class=="C"])
-#     Process.Change[Y,10] <- sum(Process.Change[Y,c(7,9)])
-#    }
-#   
-# # 5.3 Summarize and Name Rows/Columns  
-#   Process.Change[length(chngs)+1,] <- colSums(Process.Change[1:length(chngs),])
-#   colnames(Process.Change) <- cNames
-#   rownames(Process.Change) <- c(chngs,"Totals")
-#   
-# # 5.4 Return Values
-#   return(Process.Change)
-#  }
-# 
-# ################################################################################
-# # 6.0 Tally changes by Land Use ------------------------------------------------
-# 
-# if(CType == "Use"){
-# 
-# # 6.1 Add Land Use Categories to Data  
-#   
-#    ludbc <- odbcConnectAccess2007(paste0(
-#       "C://Dropbox//Data//WA//King//Assessor//Codes//KingCountyCodes.accdb"))
-#    lu.codes <- sqlQuery(ludbc, "SELECT * FROM LandUseCodes")
-#    PwC <- merge(PwC, lu.codes[,c("Code","Type")],
-#                 by.x="B.Use", by.y = "Code", all.x=T)
-#    colnames(PwC)[dim(PwC)[2]] <- "B.LUType"
-#    PwC <- merge(PwC, lu.codes[,c("Code","Type")],
-#                 by.x="E.Use", by.y = "Code", all.x=T)
-#    colnames(PwC)[dim(PwC)[2]] <- "E.LUType"
-#   
-# # 6.2 Set up Variables   
-#    
-#    LT <- table(c(as.character(PwC$B.LUType),
-#                  as.character(PwC$E.LUType)))
-#    Use.Change <- matrix(ncol=10,nrow=length(LT)+1)
-#    
-# # 6.3 Calculate Changes
-#    
-#    for(Y in 1:length(LT)){
-#      YB <- PwC[PwC$B.LUType==rownames(LT)[Y],]
-#      YE <- PwC[PwC$E.LUType==rownames(LT)[Y],]
-#      Use.Change[Y,1] <- length(which(YB$Loss.Units != 0))
-#      Use.Change[Y,2] <- -sum(YB$Loss.Units)
-#      Use.Change[Y,3] <- length(which(YE$Gain.Units != 0))   
-#      Use.Change[Y,4] <- sum(YE$Gain.Units)
-#      Use.Change[Y,5] <- sum(Use.Change[Y,c(2,4)])
-#      Use.Change[Y,6] <- length(which(YB$Loss.SF[YB$B.Class=="C"] != 0))
-#      Use.Change[Y,7] <- -sum(YB$Loss.SF[YB$B.Class=="C"])
-#      Use.Change[Y,8] <- length(which(YE$Gain.SF[YE$E.Class=="C"] != 0))   
-#      Use.Change[Y,9] <- sum(YE$Gain.SF[YE$E.Class=="C"])
-#      Use.Change[Y,10] <- sum(Use.Change[Y,c(7,9)])
-#    } 
-# 
-# # 6.4 Summarize and Name Rows/Columns  
-# 
-#    Use.Change[(length(LT)+1),] <- colSums(Use.Change[1:length(LT),])
-#    colnames(Use.Change) <- cNames
-#    rownames(Use.Change) <- c(rownames(LT),"Totals")
-# 
-# # 6.5 Cut Missing Land Uses
-#    rs <- rowSums(Use.Change)
-#    Use.Change <- Use.Change[-which(rs==0),]
-#    
-# # 6.5 Return Values
-#    
-#    return(Use.Change)
-# }
-# 
-# ################################################################################
-# # 7.0 Tally changes by Size of Development -------------------------------------
-#    
-# if(CType=="Size"){
-# 
-# #7.1 Changes in Units
-#   
-#   # 7.1.1 Set up capture variables
-#   schngs <- c(1,par[[1]],max(c(PwC$Gain.Units,PwC$Loss.Units))+1)
-#   Size.Change.U <- as.data.frame(matrix(ncol=5,nrow=length(schngs)))
-#   
-#   # 7.1.2 Calculate Changes
-#   for(Y in 2:length(schngs)){
-#     yl <- length(which(PwC$Loss.Units >= schngs[Y-1] &
-#                          PwC$Loss.Units < schngs[Y]))
-#     YL <- PwC[PwC$Loss.Units >= schngs[Y-1]  & PwC$Loss.Units < schngs[Y],]
-#     
-#     yg <- length(which(PwC$Gain.Units >= schngs[Y-1] &
-#                          PwC$Gain.Units < schngs[Y]))
-#     YG <- PwC[PwC$Gain.Units >= schngs[Y-1]  & PwC$Gain.Units < schngs[Y],]
-#     
-#     Size.Change.U[Y-1,1] <- yl
-#     Size.Change.U[Y-1,2] <- -sum(YL$Loss.Units)
-#     Size.Change.U[Y-1,3] <- yg
-#     Size.Change.U[Y-1,4] <- sum(YG$Gain.Units)
-#     Size.Change.U[Y-1,5] <- Size.Change.U[Y-1,2] + Size.Change.U[Y-1,4]
-#   }
-#   
-#   # 7.1.3 Summarize 
-#   Size.Change.U[length(schngs),] <- colSums(Size.Change.U[1:(length(schngs)-1),])
-#   
-#   # 7.1.4 Add Row and Column Names
-#   colnames(Size.Change.U) <- cNames[1:5]
-#   
-#   for(i in 2:length(schngs)){
-#     rownames(Size.Change.U)[i-1] <- paste0(schngs[i-1]," to ",(schngs[i]-1))  
-#   }
-#   rownames(Size.Change.U)[length(schngs)] <- "Totals"  
-#   
-# # 7.2 Changes in SF 
-#   
-#   # 7.2.1 Set up capture variables
-#   schngs <- c(1,par[[2]],max(c(PwC$Gain.SF,PwC$Loss.SF))+1)
-#   Size.Change.S <- as.data.frame(matrix(ncol=5,nrow=length(schngs)))
-#   
-#   # 7.2.2 Calculate Changes
-#   for(Y in 2:length(schngs)){
-#     yl <- length(which(PwC$Loss.SF >= schngs[Y-1] &
-#                          PwC$Loss.SF < schngs[Y]))
-#     YL <- PwC[PwC$Loss.SF >= schngs[Y-1]  & PwC$Loss.SF < schngs[Y],]
-#     yg <- length(which(PwC$Gain.SF >= schngs[Y-1] &
-#                          PwC$Gain.SF < schngs[Y]))
-#     YG <- PwC[PwC$Gain.SF >= schngs[Y-1]  & PwC$Gain.SF < schngs[Y],]
-#     Size.Change.S[Y-1,1] <- yl
-#     Size.Change.S[Y-1,2] <- -sum(YL$Loss.SF)
-#     Size.Change.S[Y-1,3] <- yg
-#     Size.Change.S[Y-1,4] <- sum(YG$Gain.SF)
-#     Size.Change.S[Y-1,5] <- Size.Change.S[Y-1,2] + Size.Change.S[Y-1,4]
-#   }
-#   
-#   # 7.2.3 Summarize
-#   Size.Change.S[length(schngs),] <- colSums(Size.Change.S[1:(length(schngs)-1),])
-#   
-#   # 7.2.4 Add Row and Column Names
-#   colnames(Size.Change.S) <- cNames[6:10]
-#   for(i in 2:length(schngs)){
-#     rownames(Size.Change.S)[i-1] <- paste0(schngs[i-1]," to ",(schngs[i]-1))  
-#   }
-#   rownames(Size.Change.S)[length(schngs)] <- "Totals"
-# 
-# # 7.3 Return
-#   return(list(Size.Change.U,Size.Change.S))
-# }
-# 
-# ################################################################################
-# # 8.0 Use by Year --------------------------------------------------------------
-# 
+# 6.0 Tally changes by Land Use ------------------------------------------------
+
+if(CType == "Use"){
+
+# 6.1 Add Land Use Categories to Data  -----------------------------------------
+  
+   ludbc <- odbcConnectAccess2007(paste0(
+      "C://Dropbox//Data//WA//King//Assessor//Codes//KingCountyCodes.accdb"))
+   lu.codes <- sqlQuery(ludbc, "SELECT * FROM LandUseCodes")
+   PwC <- merge(PwC, lu.codes[ ,c("Code","Type")],
+                by.x="B.Use", by.y = "Code", all.x=T)
+   colnames(PwC)[dim(PwC)[2]] <- "B.LUType"
+   PwC <- merge(PwC, lu.codes[ ,c("Code","Type")],
+                by.x="E.Use", by.y = "Code", all.x=T)
+   colnames(PwC)[dim(PwC)[2]] <- "E.LUType"
+  
+# 6.2 Set up Variables   -------------------------------------------------------
+   
+   LT <- table(c(as.character(PwC$B.LUType),
+                 as.character(PwC$E.LUType)))
+   Use.Change <- matrix(ncol=10, nrow=length(LT) + 1)
+   
+# 6.3 Calculate Changes --------------------------------------------------------
+   
+   for(Y in 1:length(LT)){
+     YB <- PwC[PwC$B.LUType == rownames(LT)[Y], ]
+     YE <- PwC[PwC$E.LUType == rownames(LT)[Y], ]
+     Use.Change[Y, 1] <- length(which(YB$Loss.Units != 0))
+     Use.Change[Y, 2] <- -sum(YB$Loss.Units)
+     Use.Change[Y, 3] <- length(which(YE$Gain.Units != 0))   
+     Use.Change[Y, 4] <- sum(YE$Gain.Units)
+     Use.Change[Y, 5] <- sum(Use.Change[Y ,c(2, 4)])
+     Use.Change[Y, 6] <- length(which(YB$Loss.SF[YB$B.Class == "C"] != 0))
+     Use.Change[Y, 7] <- -sum(YB$Loss.SF[YB$B.Class == "C"])
+     Use.Change[Y, 8] <- length(which(YE$Gain.SF[YE$E.Class == "C"] != 0))   
+     Use.Change[Y, 9] <- sum(YE$Gain.SF[YE$E.Class == "C"])
+     Use.Change[Y, 10] <- sum(Use.Change[Y, c(7, 9)])
+   } 
+
+# 6.4 Summarize and Name Rows/Columns ------------------------------------------ 
+
+   Use.Change[(length(LT) + 1), ] <- colSums(Use.Change[1:length(LT), ])
+   colnames(Use.Change) <- cNames
+   rownames(Use.Change) <- c(rownames(LT), "Totals")
+
+# 6.5 Cut Missing Land Uses ----------------------------------------------------
+
+   rs <- rowSums(Use.Change)
+   Use.Change <- Use.Change[-which(rs == 0), ]
+   
+# 6.6 Return Values ------------------------------------------------------------
+   
+   return(Use.Change)
+}
+
+################################################################################
+# 7.0 Tally changes by Size of Development -------------------------------------
+   
+if(CType == "Size"){
+
+# 7.1 Changes in Units
+  
+  # 7.1.1 Set up capture variables
+  schngs <- c(1, par[[1]], max(c(PwC$Gain.Units, PwC$Loss.Units)) + 1)
+  Size.Change.U <- as.data.frame(matrix(ncol=5, nrow=length(schngs)))
+  
+  # 7.1.2 Calculate Changes
+  for(Y in 2:length(schngs)){
+    yl <- length(which(PwC$Loss.Units >= schngs[Y - 1] &
+                         PwC$Loss.Units < schngs[Y]))
+    YL <- PwC[PwC$Loss.Units >= schngs[Y - 1]  & PwC$Loss.Units < schngs[Y], ]
+    
+    yg <- length(which(PwC$Gain.Units >= schngs[Y - 1] &
+                         PwC$Gain.Units < schngs[Y]))
+    YG <- PwC[PwC$Gain.Units >= schngs[Y - 1]  & PwC$Gain.Units < schngs[Y], ]
+    
+    Size.Change.U[Y - 1, 1] <- yl
+    Size.Change.U[Y - 1, 2] <- -sum(YL$Loss.Units)
+    Size.Change.U[Y - 1, 3] <- yg
+    Size.Change.U[Y - 1, 4] <- sum(YG$Gain.Units)
+    Size.Change.U[Y - 1, 5] <- Size.Change.U[Y - 1, 2] + Size.Change.U[Y - 1, 4]
+  }
+  
+  # 7.1.3 Summarize 
+  Size.Change.U[length(schngs), ] <- colSums(
+                                     Size.Change.U[1:(length(schngs) - 1), ])
+  
+  # 7.1.4 Add Row and Column Names
+  colnames(Size.Change.U) <- cNames[1:5]
+  
+  for(i in 2:length(schngs)){
+    rownames(Size.Change.U)[i - 1] <- paste0(schngs[i - 1],
+                                             " to ", (schngs[i] - 1))  
+  }
+  rownames(Size.Change.U)[length(schngs)] <- "Totals"  
+  
+# 7.2 Changes in SF ------------------------------------------------------------ 
+  
+  # 7.2.1 Set up capture variables
+  schngs <- c(1, par[[2]], max(c(PwC$Gain.SF, PwC$Loss.SF)) + 1)
+  Size.Change.S <- as.data.frame(matrix(ncol=5, nrow=length(schngs)))
+  
+  # 7.2.2 Calculate Changes
+  for(Y in 2:length(schngs)){
+    yl <- length(which(PwC$Loss.SF >= schngs[Y - 1] &
+                         PwC$Loss.SF < schngs[Y]))
+    YL <- PwC[PwC$Loss.SF >= schngs[Y - 1]  & PwC$Loss.SF < schngs[Y], ]
+    yg <- length(which(PwC$Gain.SF >= schngs[Y - 1] &
+                         PwC$Gain.SF < schngs[Y]))
+    YG <- PwC[PwC$Gain.SF >= schngs[Y - 1]  & PwC$Gain.SF < schngs[Y], ]
+    Size.Change.S[Y - 1, 1] <- yl
+    Size.Change.S[Y - 1, 2] <- -sum(YL$Loss.SF)
+    Size.Change.S[Y - 1, 3] <- yg
+    Size.Change.S[Y - 1, 4] <- sum(YG$Gain.SF)
+    Size.Change.S[Y - 1, 5] <- Size.Change.S[Y - 1, 2] + Size.Change.S[Y - 1, 4]
+  }
+  
+  # 7.2.3 Summarize
+  Size.Change.S[length(schngs), ] <- colSums(
+                                       Size.Change.S[1:(length(schngs) - 1), ])
+  
+  # 7.2.4 Add Row and Column Names
+  colnames(Size.Change.S) <- cNames[6:10]
+  for(i in 2:length(schngs)){
+    rownames(Size.Change.S)[i-1] <- paste0(schngs[i - 1],
+                                           " to ", (schngs[i] - 1))  
+  }
+  rownames(Size.Change.S)[length(schngs)] <- "Totals"
+
+# 7.3 Return -------------------------------------------------------------------
+  
+  return(list(Size.Change.U,Size.Change.S))
+}
+
+################################################################################
+# 8.0 Use by Year --------------------------------------------------------------
+
 # if(CType=="Use.Time"){
 #  
 # # 8.1 Prepare the Yearly Variables  
