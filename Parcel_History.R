@@ -25,11 +25,11 @@ createParcelHistory <- function(Parcel.List, Par.Geom, Beg.Year, End.Year){
   source("D://Code//R//Research//LUCIA_Model//parcelFinder.R")  
   source("D://Code//R//Research//LUCIA_Model//yearFix.R")
   source("D://Code//R//Research//LUCIA_Model//createParcelList.R")
+  source("D://Code//R//Research//LUCIA_Model//AchangeFinder.R")
+  source("D://Code//R//Research//LUCIA_Model//RchangeFinder.R")
+  source("D://Code//R//Research//LUCIA_Model//PchangeFinder.R")
+  source("D://Code//R//Research//LUCIA_Model//CchangeFinder.R")
 
-  #source("c://Dropbox//Code//WA//KingCounty//PSS_Model//AchangeFinder.R")
-  #source("c://Dropbox//Code//WA//KingCounty//PSS_Model//RchangeFinder.R")
-  #source("c://Dropbox//Code//WA//KingCounty//PSS_Model//CchangeFinder.R")
-  #source("c://Dropbox//Code//WA//KingCounty//PSS_Model//PchangeFinder.R")
 
 ################################################################################
 # 1.0 Merge Parcel List and Parcel Geometry Data  ------------------------------
@@ -307,7 +307,8 @@ createParcelHistory <- function(Parcel.List, Par.Geom, Beg.Year, End.Year){
 
 if(dim(pc.K)[1] > 0){
   
-  # 6.1 Label the individual changes to the structure(s)
+# 6.1 Label the individual changes to the structure(s) -----------------------
+  
   pc.K$ChangeSum <- 0
   pc.K$PlusUnits <- 0
   pc.K$PlusUnits[pc.K$E.Units > pc.K$B.Units] <- 1
@@ -320,11 +321,13 @@ if(dim(pc.K)[1] > 0){
   pc.K$MinusBldg <- 0
   pc.K$MinusBldg[pc.K$B.NbrBldgs > pc.K$E.NbrBldg] <- 1
   
-  # 6.2 Sum up Changes
+# 6.2 Sum up Changes -----------------------------------------------------------
+  
   pc.K$ChangeSum <- rowSums(pc.K[,(which(
     colnames(pc.K) =="ChangeSum")+1):dim(pc.K)[2]])
   
-  # 6.3 Divide Off Those with only Assessor's Updates
+# 6.3 Divide Off Those with only Assessor's Updates ----------------------------
+  
   pc.K.cons <- pc.K[pc.K$ChangeSum==0,]
   pc.K.cons$Use.Chng <- "None"
   pc.K.cons$Chng.Time <- 0
@@ -334,10 +337,12 @@ if(dim(pc.K)[1] > 0){
   pc.K.cons$Gain.Units <- 0
   pc.K.cons$Gain.SF <- 0
   
-  # 6.4 Split off Those with Real Changes
+# 6.4 Split off Those with Real Changes --------------------------------------
+
   nc.K <- pc.K[pc.K$ChangeSum!=0,]
   
-  # 6.5 Set up Variables
+# 6.5 Set up Variables -------------------------------------------------------
+
   nc.K$Use.Chng <- "None"
   nc.K$Chng.Time <- 0
   nc.K$Chng.Type <- "X"
@@ -395,10 +400,12 @@ if(dim(pc.K)[1] > 0){
   nc.K$Loss.SF[bgl] <- (nc.K$B.SF[bgl] + nc.K$B.aSF[bgl]) - 
     (nc.K$E.SF[bgl] + nc.K$E.aSF[bgl])
   
-  # 6.6 Re-combine pc.K
+# 6.6 Re-combine pc.K ----------------------------------------------------------
+
   par.K <- rbind(pc.K.cons, nc.K)
   
-  # 6.7 Check for negatives
+# 6.7 Check for negatives ------------------------------------------------------
+
   par.K$Gain.Units[par.K$Loss.Units < 0] <- -par.K$Loss.Units[
     par.K$Loss.Units < 0]
   par.K$Loss.Units[par.K$Loss.Units < 0] <- 0
@@ -415,7 +422,8 @@ if(dim(pc.K)[1] > 0){
     par.K$Gain.SF < 0]
   par.K$Gain.SF[par.K$Gain.SF < 0] <- 0
   
-  # 6.8 Clean up Fields
+# 6.8 Clean up Fields ----------------------------------------------------------
+
   par.K$ChangeSum <- NULL
   par.K$MinusBldg <- NULL
   par.K$PlusBldg <- NULL
@@ -428,7 +436,8 @@ if(dim(pc.K)[1] > 0){
 ################################################################################
 # 7.0 Apartment Structural Consistency -----------------------------------------
 
-# 7.1 Label the individual changes to the structure(s)
+# 7.1 Label the individual changes to the structure(s) -------------------------
+
    pc.A$ChangeSum <- 0
    pc.A$PlusUnits <- 0
    pc.A$PlusUnits[pc.A$E.Units > pc.A$B.Units] <- 1
@@ -441,12 +450,14 @@ if(dim(pc.K)[1] > 0){
    pc.A$MinusBldg <- 0
    pc.A$MinusBldg[pc.A$B.NbrBldgs > pc.A$E.NbrBldg] <- 1
    
-# 7.2 Sum up Changes
-   pc.A$ChangeSum <- rowSums(pc.A[,(which(
+# 7.2 Sum up Changes -----------------------------------------------------------
+   
+  pc.A$ChangeSum <- rowSums(pc.A[,(which(
      colnames(pc.A) =="ChangeSum")+1):dim(pc.A)[2]])
    
-# 7.3 Divide Off Those with only Assessor's Updates
-   pc.A.cons <- pc.A[pc.A$ChangeSum==0,]
+# 7.3 Divide Off Those with only Assessor's Updates ----------------------------
+  
+  pc.A.cons <- pc.A[pc.A$ChangeSum==0,]
    pc.A.cons$Use.Chng <- "None"
    pc.A.cons$Chng.Time <- 0
    pc.A.cons$Chng.Type <- "A.C."
@@ -455,10 +466,12 @@ if(dim(pc.K)[1] > 0){
    pc.A.cons$Gain.Units <- 0
    pc.A.cons$Gain.SF <- 0
 
-# 7.4 Split off Those with Real Changes
+# 7.4 Split off Those with Real Changes ----------------------------------------
+
    nc.A <- pc.A[pc.A$ChangeSum!=0,]
 
-# 7.5 Set up Variables
+# 7.5 Set up Variables ---------------------------------------------------------
+
    nc.A$Use.Chng <- "None"
    nc.A$Chng.Time <- 0
    nc.A$Chng.Type <- "X"
@@ -516,10 +529,12 @@ if(dim(pc.K)[1] > 0){
    nc.A$Loss.SF[bgl] <- (nc.A$B.SF[bgl] + nc.A$B.aSF[bgl]) - 
                              (nc.A$E.SF[bgl] + nc.A$E.aSF[bgl])
 
-# 7.6 Re-combine pc.R
+# 7.6 Re-combine pc.R ----------------------------------------------------------
+
    par.A <- rbind(pc.A.cons, nc.A)
 
-# 7.7 Check for negatives
+# 7.7 Check for negatives ------------------------------------------------------
+
    par.A$Gain.Units[par.A$Loss.Units < 0] <- -par.A$Loss.Units[
      par.A$Loss.Units < 0]
    par.A$Loss.Units[par.A$Loss.Units < 0] <- 0
@@ -536,7 +551,8 @@ if(dim(pc.K)[1] > 0){
      par.A$Gain.SF < 0]
    par.A$Gain.SF[par.A$Gain.SF < 0] <- 0
 
-# 7.8 Clean up Fields
+# 7.8 Clean up Fields ----------------------------------------------------------
+
    par.A$ChangeSum <- NULL
    par.A$MinusBldg <- NULL
    par.A$Rebuild <- NULL
@@ -547,7 +563,8 @@ if(dim(pc.K)[1] > 0){
 ################################################################################
 # 8.0 Commercial Structural Consistency  ---------------------------------------
 
- # 8.1 Label the individual changes to the structure(s)
+ # 8.1 Label the individual changes to the structure(s) ------------------------
+
   pc.C$ChangeSum <- 0
   pc.C$Rebuild <- 0
   pc.C$Rebuild[pc.C$E.YearBuilt > Beg.Year 
@@ -576,11 +593,13 @@ if(dim(pc.K)[1] > 0){
   pc.C$MinusUnits[(pc.C$B.Units + pc.C$B.aUnits) < 
                      (pc.C$E.Units + pc.C$E.aUnits)] <- 1
         
- # 8.2 Sum up Changes
+ # 8.2 Sum up Changes ----------------------------------------------------------
+
   pc.C$ChangeSum <- rowSums(pc.C[,(which(
     colnames(pc.C) =="ChangeSum")+1):dim(pc.C)[2]])
 
- # 8.3 Divide Off Those with only Assessor's Updates
+ # 8.3 Divide Off Those with only Assessor's Updates ---------------------------
+
   pc.C.cons <- pc.C[pc.C$ChangeSum==0, ]
   pc.C.cons$Use.Chng <- "None"
   pc.C.cons$Chng.Type <- "A.C."
@@ -590,10 +609,12 @@ if(dim(pc.K)[1] > 0){
   pc.C.cons$Gain.Units <- 0
   pc.C.cons$Gain.SF <- 0
   
-  # 8.4 Split off Those with Real Changes
+  # 8.4 Split off Those with Real Changes --------------------------------------
+
   nc.C <- pc.C[pc.C$ChangeSum!=0, ]
 
- # 8.5 Set up Variables
+ # 8.5 Set up Variables --------------------------------------------------------
+
   nc.C$Chng.Type <- "X"
   nc.C$Chng.Time <- 0
   nc.C$Use.Chng <- "None"
@@ -681,10 +702,12 @@ if(dim(pc.K)[1] > 0){
   nc.C$Loss.SF[bgl] <- (nc.C$B.SF[bgl] + nc.C$B.aSF[bgl]) - 
                             (nc.C$E.SF[bgl] + nc.C$E.aSF[bgl])
   
-# 8.6 Re-combine pc.C
+# 8.6 Re-combine pc.C ----------------------------------------------------------
+
   par.C <- rbind(pc.C.cons, nc.C)
   
-# 8.7 Check for negatives
+# 8.7 Check for negatives ------------------------------------------------------
+
   par.C$Gain.Units[par.C$Loss.Units < 0] <- -par.C$Loss.Units[
     par.C$Loss.Units < 0]
   par.C$Loss.Units[par.C$Loss.Units < 0] <- 0
@@ -701,7 +724,8 @@ if(dim(pc.K)[1] > 0){
     par.C$Gain.SF < 0]
   par.C$Gain.SF[par.C$Gain.SF < 0] <- 0
   
-# 8.8 Clean up Fields
+# 8.8 Clean up Fields ----------------------------------------------------------
+
   par.C$ChangeSum <- NULL
   par.C$MinusBldg <- NULL
   par.C$Rebuild <- NULL
@@ -725,7 +749,8 @@ if(dim(pc.K)[1] > 0){
 ################################################################################
 # 10.0 Divide up the RP No Properties    ---------------------------------------
 
-# 10.1 Filter out Invalid Topology Types
+# 10.1 Filter out Invalid Topology Types ---------------------------------------
+
   inv <- which(NC.RPTno$Topo.Type == "Relocated" |
                 NC.RPTno$Topo.Type == "Change - Rel" |
                  NC.RPTno$Topo.Type == "Consistent - Rel" |
@@ -734,25 +759,25 @@ if(dim(pc.K)[1] > 0){
   inv.RPno <- NC.RPTno[inv, ]
   val.RPno <- NC.RPTno[-inv, ]
 
-# 10.2 Divide up based on Topology R Type (A, B or E)
+# 10.2 Divide up based on Topology R Type (A, B or E) --------------------------
   
-  val.A <- val.RPno[val.RPno$PType=="A",]
-  val.B <- val.RPno[val.RPno$PType=="B",]
-  val.E <- val.RPno[val.RPno$PType=="E",]
+  val.A <- val.RPno[val.RPno$PType == "A", ]
+  val.B <- val.RPno[val.RPno$PType == "B", ]
+  val.E <- val.RPno[val.RPno$PType == "E", ]
 
 ################################################################################
 # 11.0 Split A Parcels based on RT and PT Consistencies ------------------------
 
-# 11.1 Split up based on PT Consistency
+# 11.1 Split up based on PT Consistency ----------------------------------------
   
   tc <- which(val.A$Topo.Type == "Consistent" |
                 val.A$Topo.Type == "Consistent - MP" |
                  val.A$Topo.Type == "Lot Adjustment")
 
-  valA.Cons <- val.A[tc,]
-  valA.NC <- val.A[-tc,]
+  valA.Cons <- val.A[tc, ]
+  valA.NC <- val.A[-tc, ]
   
-# 11.2 Split by RT Consistency  
+# 11.2 Split by RT Consistency  ------------------------------------------------
   
   Arc <- valA.NC[valA.NC$B.Class == valA.NC$E.Class,]
   Anc <- valA.NC[valA.NC$B.Class != valA.NC$E.Class,]
@@ -760,24 +785,25 @@ if(dim(pc.K)[1] > 0){
 ################################################################################
 # 12.0 Deal with A Parcels PT Consistent, RT/Str Inconsistent -------------
 
-# 12.1 Split up by record type
+# 12.1 Split up by record type -------------------------------------------------
 
-  valAC.R <- valA.Cons[valA.Cons$B.Class=="R",]
-  valAC.A <- valA.Cons[valA.Cons$B.Class=="A" | valA.Cons$B.Class=="C.A" ,]
-  valAC.K <- valA.Cons[valA.Cons$B.Class=="K",]
-  valAC.C <- valA.Cons[valA.Cons$B.Class=="C",]
-  valAC.V <- valA.Cons[valA.Cons$B.Class=="V",]
-  valAC.X <- valA.Cons[valA.Cons$B.Class=="X",]
+  valAC.R <- valA.Cons[valA.Cons$B.Class == "R", ]
+  valAC.A <- valA.Cons[valA.Cons$B.Class == "A" | valA.Cons$B.Class == "C.A", ]
+  valAC.K <- valA.Cons[valA.Cons$B.Class == "K", ]
+  valAC.C <- valA.Cons[valA.Cons$B.Class == "C", ]
+  valAC.V <- valA.Cons[valA.Cons$B.Class == "V", ]
+  valAC.X <- valA.Cons[valA.Cons$B.Class == "X", ]
 
 # 12.2 Deal with Res Parcels ------------------------------------------------------
 
  # 12.2.2 Set Change.Type and  Use Change 
   valAC.R$Chng.Type <- "X"
   valAC.R$Use.Chng <- "R_to_C"
-  valAC.R$Use.Chng[valAC.R$E.Class=="A" | valAC.R$E.Class=="C.A" ] <- "R_to_A"
-  valAC.R$Use.Chng[valAC.R$E.Class=="V"] <- "R_to_V"
-  valAC.R$Use.Chng[valAC.R$E.Class=="K"] <- "R_to_K"
-  valAC.R$Use.Chng[valAC.R$E.Class=="X"] <- "R_to_X"
+  valAC.R$Use.Chng[valAC.R$E.Class == "A" |
+                     valAC.R$E.Class == "C.A" ] <- "R_to_A"
+  valAC.R$Use.Chng[valAC.R$E.Class == "V"] <- "R_to_V"
+  valAC.R$Use.Chng[valAC.R$E.Class == "K"] <- "R_to_K"
+  valAC.R$Use.Chng[valAC.R$E.Class == "X"] <- "R_to_X"
 
  # 12.2.3 Set Loss SF and Loss Units 
   valAC.R$Loss.SF <- valAC.R$B.SF + valAC.R$B.aSF
@@ -802,18 +828,18 @@ if(dim(pc.K)[1] > 0){
     valAC.R$Chng.Type[valAC.R$Use.Chng == "R_to_A" & 
                       valAC.R$Chng.Time < Beg.Year] <- "Conv"
     
-    valAC.R$Chng.Type[valAC.R$Chng.Type=="Conv" & 
+    valAC.R$Chng.Type[valAC.R$Chng.Type == "Conv" & 
                         valAC.R$Gain.Units == valAC.R$Loss.Units] <- "A.C."
     
   # 12.2.5.2 Label Chng Time for Conversions  
     conv <- which(valAC.R$Chng.Type == "Conv" & valAC.R$Use.Chng == "R_to_A")
     valAC.R$Chng.Time[conv] <- yearFix(
-            PchangeFinder(valAC.R[conv,],"PresentUse", Beg.Year, End.Year))
+            PchangeFinder(valAC.R[conv, ],"PresentUse", Beg.Year, End.Year))
   }
 
- # 12.2.6 Work on Res to Comm Changes
-  r2c <- which(valAC.R$Use.Chng=="R_to_C")
-  if(length(r2c)>0){
+  # 12.2.6 Work on Res to Comm Changes
+  r2c <- which(valAC.R$Use.Chng == "R_to_C")
+  if(length(r2c) > 0){
     valAC.R$Chng.Type[r2c] <- "Redev"
     valAC.R$Gain.SF[r2c] <- valAC.R$E.SF[r2c] 
     valAC.R$Gain.Units[r2c] <- (valAC.R$E.Units[r2c] + valAC.R$E.aUnits[r2c]) 
@@ -844,22 +870,22 @@ if(dim(pc.K)[1] > 0){
     # 12.2.7.2 Label Chng Time for Conversions  
     conv <- which(valAC.R$Chng.Type == "Conv" & valAC.R$Use.Chng == "R_to_K")
     valAC.R$Chng.Time[conv] <- yearFix(
-      PchangeFinder(valAC.R[conv,],"PresentUse", Beg.Year, End.Year))
+      PchangeFinder(valAC.R[conv, ], "PresentUse", Beg.Year, End.Year))
   }
     
   # 12.2.8 Work on Res to Vacant Changes
   r2v <- which(valAC.R$Use.Chng == "R_to_V")
-  if(length(r2v)>0){  
-    valAC.R$Chng.Time[r2v] <- yearFix(PchangeFinder(valAC.R[r2v,]
-                            ,"PresentUse",Beg.Year,End.Year))     
+  if(length(r2v) > 0){  
+    valAC.R$Chng.Time[r2v] <- yearFix(PchangeFinder(valAC.R[r2v, ]
+                            ,"PresentUse", Beg.Year, End.Year))     
     valAC.R$Chng.Type[r2v] <- "Demo"
   }
 
   # 12.2.9 Work on Res to X Changes
   r2x <- which(valAC.R$Use.Chng == "R_to_X")
   if(length(r2x)>0){  
-      valAC.R$Chng.Time[r2x] <- yearFix(PchangeFinder(valAC.R[r2x,]
-                    ,"PresentUse",Beg.Year,End.Year))          
+      valAC.R$Chng.Time[r2x] <- yearFix(PchangeFinder(valAC.R[r2x, ]
+                    ,"PresentUse", Beg.Year, End.Year))          
       valAC.R$Chng.Type[r2x] <- "A.C."    
   }
 
@@ -867,12 +893,12 @@ if(dim(pc.K)[1] > 0){
 
   # 12.3.2 Set Change Type
   valAC.A$Use.Chng <- "A_to_R"
-  valAC.A$Use.Chng[valAC.A$E.Class=="A" | 
-                      valAC.A$E.Class=="C.A" ] <- "None"
-  valAC.A$Use.Chng[valAC.A$E.Class=="C"] <- "A_to_C"
-  valAC.A$Use.Chng[valAC.A$E.Class=="K"] <- "A_to_K"
-  valAC.A$Use.Chng[valAC.A$E.Class=="V"] <- "A_to_V"
-  valAC.A$Use.Chng[valAC.A$E.Class=="X"] <- "A_to_X"
+  valAC.A$Use.Chng[valAC.A$E.Class == "A" | 
+                      valAC.A$E.Class == "C.A" ] <- "None"
+  valAC.A$Use.Chng[valAC.A$E.Class == "C"] <- "A_to_C"
+  valAC.A$Use.Chng[valAC.A$E.Class == "K"] <- "A_to_K"
+  valAC.A$Use.Chng[valAC.A$E.Class == "V"] <- "A_to_V"
+  valAC.A$Use.Chng[valAC.A$E.Class == "X"] <- "A_to_X"
 
   # 12.3.3 Set Loss Units and Loss Amount
   valAC.A$Loss.SF <- valAC.A$B.SF + valAC.A$B.aSF
@@ -886,7 +912,7 @@ if(dim(pc.K)[1] > 0){
   valAC.A$Chng.Type[valAC.A$Use.Chng == "None"] <- "A.C."
 
   # 12.3.5 Work of Apt to Res Changes
-  a2r <- which(valAC.A$Use.Chng=="A_to_R")
+  a2r <- which(valAC.A$Use.Chng == "A_to_R")
   if(length(a2r)>0){
     valAC.A$Chng.Type[a2r] <- "Redev"
     valAC.A$Gain.Units[a2r] <- valAC.A$E.Units[a2r] + valAC.A$E.aUnits[a2r]
@@ -908,7 +934,7 @@ if(dim(pc.K)[1] > 0){
 
   # 12.3.6 Work on Apt to Comm Changes
   a2c <- which(valAC.A$Use.Chng == "A_to_C")
-  if(length(a2c)>0){
+  if(length(a2c) > 0){
     valAC.A$Chng.Type[a2c] <- "Redev"
     valAC.A$Gain.SF[a2c] <- valAC.A$E.SF[a2c] + valAC.A$E.aSF[a2c] 
     valAC.A$Gain.Units[a2c] <- (valAC.A$E.Units[a2c] + valAC.A$E.aUnits[a2c]) 
@@ -943,7 +969,7 @@ if(dim(pc.K)[1] > 0){
     # 12.3.7.2 Label Chng Time for Conversions  
     conv <- which(valAC.A$Chng.Type == "Conv" & valAC.A$Use.Chng == "A_to_K")
     valAC.A$Chng.Time[conv] <- yearFix(
-      PchangeFinder(valAC.A[conv,],"PresentUse", Beg.Year, End.Year))
+      PchangeFinder(valAC.A[conv, ], "PresentUse", Beg.Year, End.Year))
   }
 
  # 12.3.8 Work on Apt to Vacant Changes
@@ -951,14 +977,14 @@ if(dim(pc.K)[1] > 0){
   if(length(a2v)>0){  
     valAC.A$Chng.Type[a2v] <- "Demo"
     valAC.A$Chng.Time[a2v] <- yearFix(
-      PchangeFinder(valAC.A[a2v,],"PresentUse", Beg.Year, End.Year))
+      PchangeFinder(valAC.A[a2v, ], "PresentUse", Beg.Year, End.Year))
   }
 
  # 12.3.9 Work on Apt to X Changes
   a2x <- which(valAC.A$Use.Chng == "A_to_X")
   if(length(a2x)>0){  
-    valAC.A$Chng.Time[a2x] <- yearFix(PchangeFinder(valAC.A[a2x,]
-                                    ,"PresentUse",Beg.Year,End.Year))          
+    valAC.A$Chng.Time[a2x] <- yearFix(PchangeFinder(valAC.A[a2x, ]
+                                    ,"PresentUse", Beg.Year, End.Year))          
     valAC.A$Chng.Type[a2x] <- "A.C."    
   }
 
@@ -968,12 +994,12 @@ if(dim(valAC.K)[1] > 0){
   
  # 12.4.1 Set Change Type
   valAC.K$Use.Chng <- "K_to_R"
-  valAC.K$Use.Chng[valAC.K$E.Class=="K" | 
-                   valAC.K$E.Class=="C.K" ] <- "None"
-  valAC.K$Use.Chng[valAC.K$E.Class=="C"] <- "K_to_C"
-  valAC.K$Use.Chng[valAC.K$E.Class=="A"] <- "K_to_A"
-  valAC.K$Use.Chng[valAC.K$E.Class=="V"] <- "K_to_V"
-  valAC.K$Use.Chng[valAC.K$E.Class=="X"] <- "K_to_V"
+  valAC.K$Use.Chng[valAC.K$E.Class == "K" | 
+                   valAC.K$E.Class == "C.K" ] <- "None"
+  valAC.K$Use.Chng[valAC.K$E.Class == "C"] <- "K_to_C"
+  valAC.K$Use.Chng[valAC.K$E.Class == "A"] <- "K_to_A"
+  valAC.K$Use.Chng[valAC.K$E.Class == "V"] <- "K_to_V"
+  valAC.K$Use.Chng[valAC.K$E.Class == "X"] <- "K_to_V"
 
  # 12.4.2 Set Loss Units and Loss Amount
   valAC.K$Loss.SF <- valAC.K$B.SF + valAC.K$B.aSF
@@ -1004,7 +1030,7 @@ if(dim(valAC.K)[1] > 0){
    # 12.4.4.2 Label Chng Time for Conversions  
     conv <- which(valAC.K$Chng.Type == "Conv" & valAC.K$Use.Chng == "K_to_R")
     valAC.K$Chng.Time[conv] <- yearFix(
-      PchangeFinder(valAC.K[conv,],"PresentUse", Beg.Year, End.Year))
+      PchangeFinder(valAC.K[conv,], "PresentUse", Beg.Year, End.Year))
   }
 
 # 12.4.5 Work on Condo to Comm Changes
@@ -1026,7 +1052,7 @@ if(dim(valAC.K)[1] > 0){
   # 12.4.5.2 Label Chng Time for Conversions  
     conv <- which(valAC.K$Chng.Type == "Conv" & valAC.K$Use.Chng == "K_to_C")
     valAC.K$Chng.Time[conv] <- yearFix(
-       PchangeFinder(valAC.K[conv,],"PresentUse", Beg.Year, End.Year))
+       PchangeFinder(valAC.K[conv, ], "PresentUse", Beg.Year, End.Year))
   }
 
  # 12.4.6 Work on Condo to Apt Changes
@@ -1047,12 +1073,12 @@ if(dim(valAC.K)[1] > 0){
       PchangeFinder(valAC.K[conv,],"PresentUse", Beg.Year, End.Year))
   }
 
-# 12.4.7 Work on Condo to Vacant Changes
+ # 12.4.7 Work on Condo to Vacant Changes
   k2v <- which(valAC.K$Use.Chng == "K_to_V")
   if(length(k2v)>0){  
     valAC.K$Chng.Type[k2v] <- "Demo"
     valAC.K$Chng.Time[k2v] <- yearFix(
-      PchangeFinder(valAC.K[k2v,],"PresentUse", Beg.Year, End.Year))
+      PchangeFinder(valAC.K[k2v, ], "PresentUse", Beg.Year, End.Year))
   }
 
 # 12.4.8 Work on Condo to X Changes
@@ -1068,11 +1094,11 @@ if(dim(valAC.K)[1] > 0){
 
   # 12.5.2 Set Change Type
   valAC.C$Use.Chng <- "C_to_R"
-  valAC.C$Use.Chng[valAC.C$E.Class=="A" | 
-                    valAC.C$E.Class=="C.A" ] <- "C_to_A"
-  valAC.C$Use.Chng[valAC.C$E.Class=="K"] <- "C_to_K"
-  valAC.C$Use.Chng[valAC.C$E.Class=="V"] <- "C_to_V"
-  valAC.C$Use.Chng[valAC.C$E.Class=="X"] <- "C_to_X"
+  valAC.C$Use.Chng[valAC.C$E.Class == "A" | 
+                    valAC.C$E.Class == "C.A" ] <- "C_to_A"
+  valAC.C$Use.Chng[valAC.C$E.Class == "K"] <- "C_to_K"
+  valAC.C$Use.Chng[valAC.C$E.Class == "V"] <- "C_to_V"
+  valAC.C$Use.Chng[valAC.C$E.Class == "X"] <- "C_to_X"
 
   # 12.5.3 Set Loss Units and Loss Amount
   valAC.C$Loss.Units <- valAC.C$B.Units + valAC.C$B.aUnits
@@ -2891,15 +2917,10 @@ if(dim(Anc.K)[1] == 0){
 
 # 19.8 Fix Harbor View Property (8590400545)
   All.PH$Loss.SF[All.PH$PINX=="..8590400545"] <- 0
-  All.PH$Gain.SF[All.PH$PINX=="..8590400545"] <- All.PH$E.aSF[All.PH$PINX=="..8590400545"]
+  All.PH$Gain.SF[All.PH$PINX=="..8590400545"] <- All.PH$E.aSF[
+    All.PH$PINX=="..8590400545"]
   All.PH$Chng.Type[All.PH$PINX=="..8590400545"] <- "A.C."
   All.PH$Use.Chng[All.PH$PINX=="..8590400545"] <- "None"
-
-################################################################################
-# 20.0 Write to File
-
-write.table(All.PH,paste0("C://dropbox//data//wa//Seattle//geographic//",
-                        "ParcelHistory.txt"), sep='\t', row.names=F)
 
 return(All.PH)
 }    
