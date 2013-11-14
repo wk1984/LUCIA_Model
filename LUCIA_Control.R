@@ -22,6 +22,7 @@
   source(paste0("D://Code//R//General//Geographic//WA//KingCounty//",
               "Coding_Functions.R"))  
   source("D://Code//R//Research//LUCIA_Model//Parcel_Geometry.R")
+  source("D://Code//R//Research//LUCIA_Model//Parcel_History.R")
 
 # To Come
   #source("c://Dropbox//Code//WA//KingCounty//PSS_Model//Tabular_Change.R")
