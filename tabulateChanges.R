@@ -204,9 +204,9 @@ if(CType == "Use"){
 
 # 6.1 Add Land Use Categories to Data  -----------------------------------------
   
-   ludbc <- odbcConnectAccess2007(paste0(
-      "C://Dropbox//Data//WA//King//Assessor//Codes//KingCountyCodes.accdb"))
-   lu.codes <- sqlQuery(ludbc, "SELECT * FROM LandUseCodes")
+  ludbc <- odbcConnectAccess2007(paste0(
+    "D://Data//WA//King//Assessor//Codes.accdb"))
+  lu.codes <- sqlQuery(ludbc, "SELECT * FROM LandUseCodes")
    PwC <- merge(PwC, lu.codes[ ,c("Code","Type")],
                 by.x="B.Use", by.y = "Code", all.x=T)
    colnames(PwC)[dim(PwC)[2]] <- "B.LUType"
@@ -345,7 +345,7 @@ if(CType == "Use.Time"){
 # 8.2 Prepare the Use Based Variables ------------------------------------------  
 
   ludbc <- odbcConnectAccess2007(paste0(
-    "C://Dropbox//Data//WA//King//Assessor//Codes//KingCountyCodes.accdb"))
+  "D://Data//WA//King//Assessor//Codes.accdb"))
   lu.codes <- sqlQuery(ludbc, "SELECT * FROM LandUseCodes")
   
   PwC <- merge(PwC, lu.codes[,c("Code", "Type")],
@@ -464,388 +464,415 @@ if(CType == "Process.Time"){
   return(PT.Change)
 }  
 
-# ################################################################################
-# # 10.0 Size by Year --------------------------------------------------------------
-# 
-# if(CType=="Size.Time"){
-#   
-#   # 10.1 Prepare the Yearly Variables  
-#   
-#   tmin <- min(PwC$Chng.Time[PwC$Chng.Time!=0])
-#   tmax <- max(PwC$Chng.Time)
-#   
-#   # 10.2 Work on Change in Units
-#   
-#    # 10.2.1 Prepare Size Type Variables
-#   schngs <- c(1,par[[1]],max(c(PwC$Gain.Units,PwC$Loss.Units))+1)
-#   Size.Change.U <- as.data.frame(matrix(ncol=5,nrow=length(schngs)))
-#   
-#    # 10.2.2 Prepare Capture Variable
-#   ST.Change.U <- NULL
-#   
-#    # 10.2.3 Loop through years  
-#   for(Z in tmin:tmax){
-#     
-#     # 10.2.4 Set to Current Year Data
-#     YY <- PwC[PwC$Chng.Time==Z,]
-#     
-#     # 10.2.5 Calculate Changes
-#     for(Y in 2:length(schngs)){
-#       yl <- length(which(YY$Loss.Units >= schngs[Y-1] &
-#                          YY$Loss.Units < schngs[Y]))
-#       YL <- YY[YY$Loss.Units >= schngs[Y-1]  & YY$Loss.Units < schngs[Y],]
-#     
-#       yg <- length(which(YY$Gain.Units >= schngs[Y-1] &
-#                          YY$Gain.Units < schngs[Y]))
-#       YG <- YY[YY$Gain.Units >= schngs[Y-1]  & YY$Gain.Units < schngs[Y],]
-#     
-#       Size.Change.U[Y-1,1] <- yl
-#       Size.Change.U[Y-1,2] <- -sum(YL$Loss.Units)
-#       Size.Change.U[Y-1,3] <- yg
-#       Size.Change.U[Y-1,4] <- sum(YG$Gain.Units)
-#       Size.Change.U[Y-1,5] <- Size.Change.U[Y-1,2] + Size.Change.U[Y-1,4]
-#     }
-#     
-#   # 10.2.6 Summarize 
-#     Size.Change.U[length(schngs),] <- colSums(Size.Change.U[1:(length(schngs)-1),])
-#   
-#   # 10.2.6 Add Row and Column Names
-#   colnames(Size.Change.U) <- cNames[1:5]  
-#   for(i in 2:length(schngs)){
-#     rownames(Size.Change.U)[i-1] <- paste0(schngs[i-1]," to ",(schngs[i]-1))  
-#   }
-#   rownames(Size.Change.U)[length(schngs)] <- "Totals"  
-# 
-#   # 10.2.7 Add to List  
-#     ST.Change.U[[Z-1999]] <- Size.Change.U 
-#   }
-# 
-# # 10.3 Work on Change in Units
-#   
-#  # 10.3.1 Prepare Size Type Variables
-#   schngs <- c(1,par[[2]],max(c(PwC$Gain.SF,PwC$Loss.SF))+1)
-#   Size.Change.S <- as.data.frame(matrix(ncol=5,nrow=length(schngs)))
-#   
-#   # 10.3.2 Prepare Capture Variable
-#   ST.Change.S <- NULL
-#   
-#   # 10.3.3 Loop through years  
-#   for(Z in tmin:tmax){
-#     
-#     # 10.3.4 Set to Current Year Data
-#     YY <- PwC[PwC$Chng.Time==Z,]
-#     
-#     for(Y in 2:length(schngs)){
-#       yl <- length(which(YY$Loss.SF >= schngs[Y-1] &
-#                            YY$Loss.SF < schngs[Y]))
-#       YL <- YY[YY$Loss.SF >= schngs[Y-1]  & YY$Loss.SF < schngs[Y],]
-#       
-#       yg <- length(which(YY$Gain.SF >= schngs[Y-1] &
-#                            YY$Gain.SF < schngs[Y]))
-#       YG <- YY[YY$Gain.SF >= schngs[Y-1]  & YY$Gain.SF < schngs[Y],]
-#       
-#       Size.Change.S[Y-1,1] <- yl
-#       Size.Change.S[Y-1,2] <- -sum(YL$Loss.SF)
-#       Size.Change.S[Y-1,3] <- yg
-#       Size.Change.S[Y-1,4] <- sum(YG$Gain.SF)
-#       Size.Change.S[Y-1,5] <- Size.Change.S[Y-1,2] + Size.Change.S[Y-1,4]
-#     }
-#     
-#     # 10.3.5 Summarize 
-#     Size.Change.S[length(schngs),] <- colSums(Size.Change.S[1:(length(schngs)-1),])
-#     
-#     # 10.3.6 Add Row and Column Names
-#     colnames(Size.Change.S) <- cNames[6:10]
-#     
-#     for(i in 2:length(schngs)){
-#       rownames(Size.Change.S)[i-1] <- paste0(schngs[i-1]," to ",(schngs[i]-1))  
-#     }
-#     rownames(Size.Change.S)[length(schngs)] <- "Totals"  
-#     
-#     # 10.3.7 Add to List  
-#     ST.Change.S[[Z-1999]] <- Size.Change.S 
-#   }
-#   
-# # 10.4 Return Values  
-#  return(list(ST.Change.U,ST.Change.S,par))
-# }  
-# 
-# ################################################################################
-# # 11.0 Size by Process Type ----------------------------------------------------
-# 
-# if(CType=="Size.Process"){
-#   
-# # 11.1 set up change types
-#   
-#   chngs <- rownames(table(as.character(PwC$Chng.Type)))
-#   cut <- which(chngs=="A.C." | chngs=="None")
-#   if(length(cut)>0){chngs <- chngs[-cut,]}
-#   
-#   # 11.2 Work on Change in Units
-#   
-#   # 11.2.1 Prepare Size Type Variables
-#   schngs <- c(1,par[[1]],max(c(PwC$Gain.Units,PwC$Loss.Units))+1)
-#   Size.Change.U <- as.data.frame(matrix(ncol=5,nrow=length(schngs)))
-#   
-#   # 11.2.2 Prepare Capture Variable
-#   SP.Change.U <- NULL
-#     
-#   # 11.2.3 Calculate Changes
-#   for(Y in 1:length(chngs)){
-#     YY <- PwC[PwC$Chng.Type==chngs[Y],]
-#   
-#     for(Z in 2:length(schngs)){
-#       yl <- length(which(YY$Loss.Units >= schngs[Z-1] &
-#                            YY$Loss.Units < schngs[Z]))
-#       YL <- YY[YY$Loss.Units >= schngs[Z-1]  & YY$Loss.Units < schngs[Z],]
-#       
-#       yg <- length(which(YY$Gain.Units >= schngs[Z-1] &
-#                            YY$Gain.Units < schngs[Z]))
-#       YG <- YY[YY$Gain.Units >= schngs[Z-1]  & YY$Gain.Units < schngs[Z],]
-#       
-#       Size.Change.U[Z-1,1] <- yl
-#       Size.Change.U[Z-1,2] <- -sum(YL$Loss.Units)
-#       Size.Change.U[Z-1,3] <- yg
-#       Size.Change.U[Z-1,4] <- sum(YG$Gain.Units)
-#       Size.Change.U[Z-1,5] <- Size.Change.U[Z-1,2] + Size.Change.U[Z-1,4]
-#     }
-#   
-#   # 11.2.4 Summarize 
-#     Size.Change.U[length(schngs),] <- colSums(Size.Change.U[1:(length(schngs)-1),])
-#   
-#   # 11.2.5 Add Row and Column Names
-#   colnames(Size.Change.U) <- cNames[1:5]
-#     
-#   for(i in 2:length(schngs)){
-#     rownames(Size.Change.U)[i-1] <- paste0(schngs[i-1]," to ",(schngs[i]-1))  
-#   }
-#   rownames(Size.Change.U)[length(schngs)] <- "Totals"  
-#   
-#   # 11.2.6 Add to List  
-#   SP.Change.U[[Y]] <- Size.Change.U 
-#   } 
-#     
-# # 11.3 Work on Change in SF
-#   
-#   # 11.3.1 Prepare Size Type Variables
-#   schngs <- c(1,par[[2]],max(c(PwC$Gain.SF,PwC$Loss.SF))+1)
-#   Size.Change.S <- as.data.frame(matrix(ncol=5,nrow=length(schngs)))
-#   
-#   # 11.3.2 Prepare Capture Variable
-#   SP.Change.S <- NULL
-#   
-#   # 11.3.3 Calculate Changes
-#   for(Y in 1:length(chngs)){
-#     YY <- PwC[PwC$Chng.Type==chngs[Y],]
-#     
-#     for(Z in 2:length(schngs)){
-#       yl <- length(which(YY$Loss.SF >= schngs[Z-1] &
-#                            YY$Loss.SF < schngs[Z]))
-#       YL <- YY[YY$Loss.SF >= schngs[Z-1]  & YY$Loss.SF < schngs[Z],]
-#       
-#       yg <- length(which(YY$Gain.SF >= schngs[Z-1] &
-#                            YY$Gain.SF < schngs[Z]))
-#       YG <- YY[YY$Gain.SF >= schngs[Z-1]  & YY$Gain.SF < schngs[Z],]
-#       
-#       Size.Change.S[Z-1,1] <- yl
-#       Size.Change.S[Z-1,2] <- -sum(YL$Loss.SF)
-#       Size.Change.S[Z-1,3] <- yg
-#       Size.Change.S[Z-1,4] <- sum(YG$Gain.SF)
-#       Size.Change.S[Z-1,5] <- Size.Change.S[Z-1,2] + Size.Change.S[Z-1,4]
-#     }
-#     
-#     # 11.3.4 Summarize 
-#     Size.Change.S[length(schngs),] <- colSums(Size.Change.S[1:(length(schngs)-1),])
-#     
-#     # 11.3.5 Add Row and Column Names
-#     colnames(Size.Change.S) <- cNames[6:10]
-#     
-#     for(i in 2:length(schngs)){
-#       rownames(Size.Change.S)[i-1] <- paste0(schngs[i-1]," to ",(schngs[i]-1))  
-#     }
-#     rownames(Size.Change.S)[length(schngs)] <- "Totals"  
-#     
-#     # 11.3.6 Add to List  
-#     SP.Change.S[[Y]] <- Size.Change.S 
-#   }    
-#     
-# # 11.4 Return Values
-# return(list(SP.Change.U, SP.Change.S, chngs))
-# }
-# 
-# ################################################################################
-# # 12.0 Use by Process Type -----------------------------------------------------
-# 
-# if(CType=="Use.Process"){
-#   
-#   # 12.1 set up change types
-#   
-#   chngs <- rownames(table(as.character(PwC$Chng.Type)))
-#   cut <- which(chngs=="A.C." | chngs=="None")
-#   if(length(cut)>0){chngs <- chngs[-cut,]}
-#   
-#   # 12.2 Prepare the Use Based Variables  
-#   ludbc <- odbcConnectAccess2007(paste0(
-#     "C://Dropbox//Data//WA//King//Assessor//Codes//KingCountyCodes.accdb"))
-#   lu.codes <- sqlQuery(ludbc, "SELECT * FROM LandUseCodes")
-#   
-#   PwC <- merge(PwC, lu.codes[,c("Code","Type")],
-#                by.x="B.Use", by.y = "Code", all.x=T)
-#   colnames(PwC)[dim(PwC)[2]] <- "B.LUType"
-#   PwC <- merge(PwC, lu.codes[,c("Code","Type")],
-#                by.x="E.Use", by.y = "Code", all.x=T)
-#   colnames(PwC)[dim(PwC)[2]] <- "E.LUType"
-#   
-#   # 12.3 Set up Variables
-#   LT <- table(c(as.character(PwC$B.LUType),
-#                 as.character(PwC$E.LUType)))
-#   UP.Change <- NULL
-#   
-#   # 12.4 Calculate Changes
-#   for(Z in 1:length(chngs)){
-#     
-#     # 12.4.1 Set to Current Year Data
-#     YY <- PwC[PwC$Chng.Type==chngs[Z],]
-# 
-#     Use.Change <- matrix(ncol=10,nrow=length(LT)+1)
-# 
-#     # 12.4.2 Calculate Changes
-#     for(Y in 1:length(LT)){
-#       YB <- PwC[YY$B.LUType==rownames(LT)[Y],]
-#       YE <- PwC[YY$E.LUType==rownames(LT)[Y],]
-#       Use.Change[Y,1] <- length(which(YB$Loss.Units != 0))
-#       Use.Change[Y,2] <- -sum(YB$Loss.Units)
-#       Use.Change[Y,3] <- length(which(YE$Gain.Units != 0))   
-#       Use.Change[Y,4] <- sum(YE$Gain.Units)
-#       Use.Change[Y,5] <- sum(Use.Change[Y,c(2,4)])
-#       Use.Change[Y,6] <- length(which(YB$Loss.SF[YB$B.Class=="C"] != 0))
-#       Use.Change[Y,7] <- -sum(YB$Loss.SF[YB$B.Class=="C"])
-#       Use.Change[Y,8] <- length(which(YE$Gain.SF[YE$E.Class=="C"] != 0))   
-#       Use.Change[Y,9] <- sum(YE$Gain.SF[YE$E.Class=="C"])
-#       Use.Change[Y,10] <- sum(Use.Change[Y,c(7,9)])
-#     } 
-#     
-#     # 12.4.3 Summarize and Name Rows/Columns  
-#     Use.Change[(length(LT)+1),] <- colSums(Use.Change[1:length(LT),])
-#     colnames(Use.Change) <- cNames
-#     rownames(Use.Change) <- c(rownames(LT),"Totals")
-#     
-#   # 12.5 Add to the list  
-#     UP.Change[[Z]] <- Use.Change 
-#   }
-#   
-# # 12.6 Return Values
-# return(list(UP.Change, chngs))
-# }
-# 
-# ################################################################################
-# # 13.0 Size by Use -------------------------------------------------------------
-# 
-# if(CType == "Size.Use"){
-#   
-#   ludbc <- odbcConnectAccess2007(paste0(
-#     "C://Dropbox//Data//WA//King//Assessor//Codes//KingCountyCodes.accdb"))
-#   lu.codes <- sqlQuery(ludbc, "SELECT * FROM LandUseCodes")
-#   
-#   PwC <- merge(PwC, lu.codes[,c("Code","Type")],
-#                by.x="B.Use", by.y = "Code", all.x=T)
-#   colnames(PwC)[dim(PwC)[2]] <- "B.LUType"
-#   PwC <- merge(PwC, lu.codes[,c("Code","Type")],
-#                by.x="E.Use", by.y = "Code", all.x=T)
-#   colnames(PwC)[dim(PwC)[2]] <- "E.LUType"
-#   
-#   LT <- table(c(as.character(PwC$B.LUType),
-#                 as.character(PwC$E.LUType)))
-#   SU.Change.U <- NULL
-#   SU.Change.S <- NULL
-#     
-#  # 13.2.Do Changes in Units
-#   
-#   # 13.2.1 Set up capture variables
-#   schngs <- c(1,par[[1]],max(c(PwC$Gain.Units,PwC$Loss.Units))+1)
-#   Size.Change.U <- as.data.frame(matrix(ncol=5,nrow=length(schngs)))
-#   
-#   for(Y in 1:length(LT)){
-#     YB <- PwC[PwC$B.LUType==rownames(LT)[Y],]
-#     YE <- PwC[PwC$E.LUType==rownames(LT)[Y],]
-# 
-#     # 13.2.2 Calculate Changes
-#     for(Z in 2:length(schngs)){
-#       yl <- length(which(YB$Loss.Units >= schngs[Z-1] &
-#                          YB$Loss.Units < schngs[Z]))
-#       YL <- YB[YB$Loss.Units >= schngs[Z-1]  & YB$Loss.Units < schngs[Z],]
-#     
-#       yg <- length(which(YE$Gain.Units >= schngs[Z-1] &
-#                          YE$Gain.Units < schngs[Z]))
-#       YG <- YE[YE$Gain.Units >= schngs[Z-1]  & YE$Gain.Units < schngs[Z],]
-#     
-#       Size.Change.U[Z-1,1] <- yl
-#       Size.Change.U[Z-1,2] <- -sum(YL$Loss.Units)
-#       Size.Change.U[Z-1,3] <- yg
-#       Size.Change.U[Z-1,4] <- sum(YG$Gain.Units)
-#       Size.Change.U[Z-1,5] <- Size.Change.U[Z-1,2] + Size.Change.U[Z-1,4]
-#     }
-#     
-#    # 13.2.3 Summarize 
-#     Size.Change.U[length(schngs),] <- colSums(Size.Change.U[1:(length(schngs)-1),])
-#   
-#    # 13.2.4 Add Row and Column Names
-#    colnames(Size.Change.U) <- cNames[1:5]
-#    for(i in 2:length(schngs)){
-#      rownames(Size.Change.U)[i-1] <- paste0(schngs[i-1]," to ",(schngs[i]-1))  
-#    }
-#    rownames(Size.Change.U)[length(schngs)] <- "Totals"  
-#    
-#   #13.2.5 Add to List  
-#   SU.Change.U[[Y]] <- Size.Change.U
-#   }
-#   
-# # 13.3.Do Changes in Units
-#   
-#   # 13.2.1 Set up capture variables
-#   schngs <- c(1,par[[2]],max(c(PwC$Gain.SF,PwC$Loss.SF))+1)
-#   Size.Change.S <- as.data.frame(matrix(ncol=5,nrow=length(schngs)))
-#   
-#   for(Y in 1:length(LT)){
-#     YY <- PwC[PwC$B.LUType==rownames(LT)[Y] | PwC$E.LUType==rownames(LT)[Y],]
-#     
-#     # 13.2.2 Calculate Changes
-#     for(Z in 2:length(schngs)){
-#       yl <- length(which(YY$Loss.SF >= schngs[Z-1] &
-#                            YY$Loss.SF < schngs[Z]))
-#       YL <- YY[YY$SF.Units >= schngs[Z-1]  & YY$Loss.SF < schngs[Z],]
-#       
-#       yg <- length(which(YY$Gain.SF >= schngs[Z-1] &
-#                            YY$Gain.SF < schngs[Z]))
-#       YG <- YY[YY$Gain.SF >= schngs[Z-1]  & YY$Gain.SF < schngs[Z],]
-#       
-#       Size.Change.S[Z-1,1] <- yl
-#       Size.Change.S[Z-1,2] <- -sum(YL$Loss.SF)
-#       Size.Change.S[Z-1,3] <- yg
-#       Size.Change.S[Z-1,4] <- sum(YG$Gain.SF)
-#       Size.Change.S[Z-1,5] <- Size.Change.S[Z-1,2] + Size.Change.S[Z-1,4]
-#     }
-#     
-#     # 13.2.3 Summarize 
-#     Size.Change.S[length(schngs),] <- colSums(Size.Change.S[1:(length(schngs)-1),])
-#     
-#     # 13.2.4 Add Row and Column Names
-#     colnames(Size.Change.S) <- cNames[6:10]
-#     
-#     for(i in 2:length(schngs)){
-#       rownames(Size.Change.S)[i-1] <- paste0(schngs[i-1]," to ",(schngs[i]-1))  
-#     }
-#     rownames(Size.Change.S)[length(schngs)] <- "Totals"  
-#     
-#     # 13.3.5 Add to List    
-#    SU.Change.S[[Y]] <- Size.Change.S
-#   }
-# 
-# # 13.4 Return
-#  return(list(SU.Change.U, SU.Change.S,rownames(LT)))
-#  }
-# 
+################################################################################
+# 10.0 Size by Year ------------------------------------------------------------
 
+if(CType == "Size.Time"){
+  
+# 10.1 Prepare the Yearly Variables  -------------------------------------------
+  
+  tmin <- min(PwC$Chng.Time[PwC$Chng.Time != 0])
+  tmax <- max(PwC$Chng.Time)
+  
+# 10.2 Work on Change in Units -------------------------------------------------
+  
+  # 10.2.1 Prepare Size Type Variables
+  schngs <- c(1, par[[1]], max(c(PwC$Gain.Units, PwC$Loss.Units)) + 1)
+  Size.Change.U <- as.data.frame(matrix(ncol=5, nrow=length(schngs)))
+  
+  # 10.2.2 Prepare Capture Variable
+  ST.Change.U <- NULL
+  
+  # 10.2.3 Loop through years  
+  for(Z in tmin:tmax){
+    
+    # 10.2.4 Set to Current Year Data
+    YY <- PwC[PwC$Chng.Time == Z, ]
+    
+    # 10.2.5 Calculate Changes
+    for(Y in 2:length(schngs)){
+      yl <- length(which(YY$Loss.Units >= schngs[Y - 1] &
+                         YY$Loss.Units < schngs[Y]))
+      YL <- YY[YY$Loss.Units >= schngs[Y - 1]  & YY$Loss.Units < schngs[Y], ]
+    
+      yg <- length(which(YY$Gain.Units >= schngs[Y - 1] &
+                         YY$Gain.Units < schngs[Y]))
+      YG <- YY[YY$Gain.Units >= schngs[Y - 1]  & YY$Gain.Units < schngs[Y], ]
+    
+      Size.Change.U[Y - 1, 1] <- yl
+      Size.Change.U[Y - 1, 2] <- -sum(YL$Loss.Units)
+      Size.Change.U[Y - 1, 3] <- yg
+      Size.Change.U[Y - 1, 4] <- sum(YG$Gain.Units)
+      Size.Change.U[Y - 1, 5] <- Size.Change.U[Y - 1, 2] + Size.Change.U[
+                                                                    Y - 1, 4]
+    }
+    
+  # 10.2.6 Summarize 
+    Size.Change.U[length(schngs), ] <- colSums(Size.Change.U[1:(
+                                                         length(schngs) - 1), ])
+  
+  # 10.2.7 Add Row and Column Names
+ 
+  colnames(Size.Change.U) <- cNames[1:5]  
+  for(i in 2:length(schngs)){
+    rownames(Size.Change.U)[i - 1] <- paste0(schngs[i - 1],
+                                            " to ", (schngs[i] - 1))  
+  }
+  rownames(Size.Change.U)[length(schngs)] <- "Totals"  
+
+  # 10.2.8 Add to List  
+    ST.Change.U[[Z - 1999]] <- Size.Change.U 
+  }
+
+# 10.3 Work on Change in Units -------------------------------------------------
+  
+ # 10.3.1 Prepare Size Type Variables
+  schngs <- c(1,par[[2]], max(c(PwC$Gain.SF, PwC$Loss.SF)) + 1)
+  Size.Change.S <- as.data.frame(matrix(ncol=5, nrow=length(schngs)))
+  
+  # 10.3.2 Prepare Capture Variable
+  ST.Change.S <- NULL
+  
+  # 10.3.3 Loop through years  
+  for(Z in tmin:tmax){
+    
+    # 10.3.4 Set to Current Year Data
+    YY <- PwC[PwC$Chng.Time == Z,]
+    
+    for(Y in 2:length(schngs)){
+      yl <- length(which(YY$Loss.SF >= schngs[Y - 1] &
+                           YY$Loss.SF < schngs[Y]))
+      YL <- YY[YY$Loss.SF >= schngs[Y - 1]  & YY$Loss.SF < schngs[Y], ]
+      
+      yg <- length(which(YY$Gain.SF >= schngs[Y - 1] &
+                           YY$Gain.SF < schngs[Y]))
+      YG <- YY[YY$Gain.SF >= schngs[Y - 1]  & YY$Gain.SF < schngs[Y], ]
+      
+      Size.Change.S[Y - 1, 1] <- yl
+      Size.Change.S[Y - 1, 2] <- -sum(YL$Loss.SF)
+      Size.Change.S[Y - 1, 3] <- yg
+      Size.Change.S[Y - 1, 4] <- sum(YG$Gain.SF)
+      Size.Change.S[Y - 1, 5] <- Size.Change.S[Y - 1, 2] + Size.Change.S[
+                                                                       Y - 1, 4]
+    }
+    
+    # 10.3.5 Summarize 
+    Size.Change.S[length(schngs), ] <- colSums(Size.Change.S[1:(
+                                                        length(schngs) - 1), ])
+    
+    # 10.3.6 Add Row and Column Names
+    colnames(Size.Change.S) <- cNames[6:10]
+    
+    for(i in 2:length(schngs)){
+      rownames(Size.Change.S)[i - 1] <- paste0(schngs[i - 1],
+                                               " to ", (schngs[i] - 1))  
+    }
+    rownames(Size.Change.S)[length(schngs)] <- "Totals"  
+    
+    # 10.3.7 Add to List  
+    ST.Change.S[[Z - 1999]] <- Size.Change.S 
+  }
+  
+# 10.4 Return Values -----------------------------------------------------------  
+
+ return(list(ST.Change.U, ST.Change.S, par))
+}  
+
+################################################################################
+# 11.0 Size by Process Type ----------------------------------------------------
+
+if(CType =" Size.Process"){
+  
+# 11.1 set up change types -----------------------------------------------------
+  
+  chngs <- rownames(table(as.character(PwC$Chng.Type)))
+  cut <- which(chngs == "A.C." | chngs == "None")
+  if(length(cut) > 0){chngs <- chngs[-cut, ]}
+  
+# 11.2 Work on Change in Units -------------------------------------------------
+  
+  # 11.2.1 Prepare Size Type Variables
+  schngs <- c(1, par[[1]], max(c(PwC$Gain.Units, PwC$Loss.Units)) + 1)
+  Size.Change.U <- as.data.frame(matrix(ncol=5, nrow=length(schngs)))
+  
+  # 11.2.2 Prepare Capture Variable
+  SP.Change.U <- NULL
+    
+  # 11.2.3 Calculate Changes
+  for(Y in 1:length(chngs)){
+    YY <- PwC[PwC$Chng.Type == chngs[Y], ]
+  
+    for(Z in 2:length(schngs)){
+      yl <- length(which(YY$Loss.Units >= schngs[Z - 1] &
+                           YY$Loss.Units < schngs[Z]))
+      YL <- YY[YY$Loss.Units >= schngs[Z - 1]  & YY$Loss.Units < schngs[Z], ]
+      
+      yg <- length(which(YY$Gain.Units >= schngs[Z - 1] &
+                           YY$Gain.Units < schngs[Z]))
+      YG <- YY[YY$Gain.Units >= schngs[Z - 1]  & YY$Gain.Units < schngs[Z], ]
+      
+      Size.Change.U[Z - 1, 1] <- yl
+      Size.Change.U[Z - 1, 2] <- -sum(YL$Loss.Units)
+      Size.Change.U[Z - 1, 3] <- yg
+      Size.Change.U[Z - 1, 4] <- sum(YG$Gain.Units)
+      Size.Change.U[Z - 1, 5] <- Size.Change.U[Z - 1, 2] + Size.Change.U[
+                                                                       Z - 1, 4]
+    }
+  
+  # 11.2.4 Summarize 
+    Size.Change.U[length(schngs), ] <- colSums(Size.Change.U[1:(
+                                                        length(schngs) - 1), ])
+  
+  # 11.2.5 Add Row and Column Names
+  colnames(Size.Change.U) <- cNames[1:5]
+    
+  for(i in 2:length(schngs)){
+    rownames(Size.Change.U)[i - 1] <- paste0(schngs[i - 1],
+                                             " to ", (schngs[i]-1))  
+  }
+  rownames(Size.Change.U)[length(schngs)] <- "Totals"  
+  
+  # 11.2.6 Add to List  
+  SP.Change.U[[Y]] <- Size.Change.U 
+  } 
+    
+# 11.3 Work on Change in SF ----------------------------------------------------
+  
+  # 11.3.1 Prepare Size Type Variables
+  schngs <- c(1, par[[2]], max(c(PwC$Gain.SF, PwC$Loss.SF)) + 1)
+  Size.Change.S <- as.data.frame(matrix(ncol=5, nrow=length(schngs)))
+  
+  # 11.3.2 Prepare Capture Variable
+  SP.Change.S <- NULL
+  
+  # 11.3.3 Calculate Changes
+  for(Y in 1:length(chngs)){
+    YY <- PwC[PwC$Chng.Type == chngs[Y], ]
+    
+    for(Z in 2:length(schngs)){
+      yl <- length(which(YY$Loss.SF >= schngs[Z - 1] &
+                           YY$Loss.SF < schngs[Z]))
+      YL <- YY[YY$Loss.SF >= schngs[Z - 1]  & YY$Loss.SF < schngs[Z], ]
+      
+      yg <- length(which(YY$Gain.SF >= schngs[Z - 1] &
+                           YY$Gain.SF < schngs[Z]))
+      YG <- YY[YY$Gain.SF >= schngs[Z - 1]  & YY$Gain.SF < schngs[Z], ]
+      
+      Size.Change.S[Z - 1, 1] <- yl
+      Size.Change.S[Z - 1, 2] <- -sum(YL$Loss.SF)
+      Size.Change.S[Z - 1, 3] <- yg
+      Size.Change.S[Z - 1, 4] <- sum(YG$Gain.SF)
+      Size.Change.S[Z - 1, 5] <- Size.Change.S[Z - 1, 2] + Size.Change.S[
+                                                                     Z - 1, 4]
+    }
+    
+    # 11.3.4 Summarize 
+    Size.Change.S[length(schngs), ] <- colSums(Size.Change.S[1:(
+                                    length(schngs) - 1), ])
+    
+    # 11.3.5 Add Row and Column Names
+    colnames(Size.Change.S) <- cNames[6:10]
+    
+    for(i in 2:length(schngs)){
+      rownames(Size.Change.S)[i - 1] <- paste0(schngs[i - 1],
+                                               " to ", (schngs[i] - 1))  
+    }
+    rownames(Size.Change.S)[length(schngs)] <- "Totals"  
+    
+    # 11.3.6 Add to List  
+    SP.Change.S[[Y]] <- Size.Change.S 
+  }    
+    
+# 11.4 Return Values -----------------------------------------------------------
+
+return(list(SP.Change.U, SP.Change.S, chngs))
+}
+
+################################################################################
+# 12.0 Use by Process Type -----------------------------------------------------
+
+if(CType == "Use.Process"){
+  
+# 12.1 set up change types -----------------------------------------------------
+  
+  chngs <- rownames(table(as.character(PwC$Chng.Type)))
+  cut <- which(chngs == "A.C." | chngs == "None")
+  if(length(cut) > 0){chngs <- chngs[-cut, ]}
+  
+# 12.2 Prepare the Use Based Variables -----------------------------------------  
+
+  ludbc <- odbcConnectAccess2007(paste0(
+    "D://Data//WA//King//Assessor//Codes.accdb"))
+  lu.codes <- sqlQuery(ludbc, "SELECT * FROM LandUseCodes")
+  
+  PwC <- merge(PwC, lu.codes[,c("Code", "Type")],
+               by.x="B.Use", by.y = "Code", all.x=T)
+  colnames(PwC)[dim(PwC)[2]] <- "B.LUType"
+  PwC <- merge(PwC, lu.codes[,c("Code", "Type")],
+               by.x="E.Use", by.y = "Code", all.x=T)
+  colnames(PwC)[dim(PwC)[2]] <- "E.LUType"
+  
+# 12.3 Set up Variables --------------------------------------------------------
+
+  LT <- table(c(as.character(PwC$B.LUType),
+                as.character(PwC$E.LUType)))
+  UP.Change <- NULL
+  
+  # 12.4 Calculate Changes
+  for(Z in 1:length(chngs)){
+    
+    # 12.4.1 Set to Current Year Data
+    YY <- PwC[PwC$Chng.Type == chngs[Z], ]
+
+    Use.Change <- matrix(ncol=10, nrow=length(LT) + 1)
+
+    # 12.4.2 Calculate Changes
+    for(Y in 1:length(LT)){
+      YB <- PwC[YY$B.LUType == rownames(LT)[Y], ]
+      YE <- PwC[YY$E.LUType == rownames(LT)[Y], ]
+      Use.Change[Y, 1] <- length(which(YB$Loss.Units != 0))
+      Use.Change[Y, 2] <- -sum(YB$Loss.Units)
+      Use.Change[Y, 3] <- length(which(YE$Gain.Units != 0))   
+      Use.Change[Y, 4] <- sum(YE$Gain.Units)
+      Use.Change[Y, 5] <- sum(Use.Change[Y, c(2, 4)])
+      Use.Change[Y, 6] <- length(which(YB$Loss.SF[YB$B.Class == "C"] != 0))
+      Use.Change[Y, 7] <- -sum(YB$Loss.SF[YB$B.Class == "C"])
+      Use.Change[Y, 8] <- length(which(YE$Gain.SF[YE$E.Class == "C"] != 0))   
+      Use.Change[Y, 9] <- sum(YE$Gain.SF[YE$E.Class == "C"])
+      Use.Change[Y, 10] <- sum(Use.Change[Y, c(7, 9)])
+    } 
+    
+    # 12.4.3 Summarize and Name Rows/Columns  
+    Use.Change[(length(LT) + 1), ] <- colSums(Use.Change[1:length(LT), ])
+    colnames(Use.Change) <- cNames
+    rownames(Use.Change) <- c(rownames(LT), "Totals")
+    
+# 12.5 Add to the list  --------------------------------------------------------
+    
+    UP.Change[[Z]] <- Use.Change 
+  }
+  
+# 12.6 Return Values -----------------------------------------------------------
+
+return(list(UP.Change, chngs))
+}
+
+################################################################################
+# 13.0 Size by Use -------------------------------------------------------------
+
+if(CType == "Size.Use"){
+
+# 13.1 Prepare the Use Based Variables -----------------------------------------  
+  
+  ludbc <- odbcConnectAccess2007(paste0(
+    "D://Data//WA//King//Assessor//Codes.accdb"))
+  lu.codes <- sqlQuery(ludbc, "SELECT * FROM LandUseCodes")
+  
+  PwC <- merge(PwC, lu.codes[ ,c("Code","Type")],
+               by.x="B.Use", by.y = "Code", all.x=T)
+  colnames(PwC)[dim(PwC)[2]] <- "B.LUType"
+  PwC <- merge(PwC, lu.codes[ ,c("Code","Type")],
+               by.x="E.Use", by.y = "Code", all.x=T)
+  colnames(PwC)[dim(PwC)[2]] <- "E.LUType"
+  
+  LT <- table(c(as.character(PwC$B.LUType),
+                as.character(PwC$E.LUType)))
+  SU.Change.U <- NULL
+  SU.Change.S <- NULL
+    
+# 13.2.Do Changes in Units -----------------------------------------------------
+  
+  # 13.2.1 Set up capture variables
+  schngs <- c(1, par[[1]], max(c(PwC$Gain.Units, PwC$Loss.Units)) + 1)
+  Size.Change.U <- as.data.frame(matrix(ncol=5, nrow=length(schngs)))
+  
+  for(Y in 1:length(LT)){
+    YB <- PwC[PwC$B.LUType == rownames(LT)[Y], ]
+    YE <- PwC[PwC$E.LUType == rownames(LT)[Y], ]
+
+    # 13.2.2 Calculate Changes
+    for(Z in 2:length(schngs)){
+      yl <- length(which(YB$Loss.Units >= schngs[Z - 1] &
+                         YB$Loss.Units < schngs[Z]))
+      YL <- YB[YB$Loss.Units >= schngs[Z - 1]  & YB$Loss.Units < schngs[Z], ]
+    
+      yg <- length(which(YE$Gain.Units >= schngs[Z - 1] &
+                         YE$Gain.Units < schngs[Z]))
+      YG <- YE[YE$Gain.Units >= schngs[Z - 1]  & YE$Gain.Units < schngs[Z], ]
+    
+      Size.Change.U[Z - 1, 1] <- yl
+      Size.Change.U[Z - 1, 2] <- -sum(YL$Loss.Units)
+      Size.Change.U[Z - 1, 3] <- yg
+      Size.Change.U[Z - 1, 4] <- sum(YG$Gain.Units)
+      Size.Change.U[Z - 1, 5] <- Size.Change.U[Z - 1, 2] + Size.Change.U[
+                                                                       Z - 1, 4]
+    }
+    
+   # 13.2.3 Summarize 
+    Size.Change.U[length(schngs), ] <- colSums(Size.Change.U[1:(
+                                                        length(schngs) - 1), ])
+  
+   # 13.2.4 Add Row and Column Names
+   colnames(Size.Change.U) <- cNames[1:5]
+   for(i in 2:length(schngs)){
+     rownames(Size.Change.U)[i - 1] <- paste0(schngs[i - 1],
+                                              " to ", (schngs[i] - 1))  
+   }
+   rownames(Size.Change.U)[length(schngs)] <- "Totals"  
+   
+  #13.2.5 Add to List  
+  SU.Change.U[[Y]] <- Size.Change.U
+  }
+  
+# 13.3.Do Changes in Units -----------------------------------------------------
+  
+  # 13.2.1 Set up capture variables
+  schngs <- c(1, par[[2]], max(c(PwC$Gain.SF,PwC$Loss.SF)) + 1)
+  Size.Change.S <- as.data.frame(matrix(ncol=5, nrow=length(schngs)))
+  
+  for(Y in 1:length(LT)){
+    YY <- PwC[PwC$B.LUType == rownames(LT)[Y] | 
+                PwC$E.LUType == rownames(LT)[Y], ]
+    
+    # 13.2.2 Calculate Changes
+    for(Z in 2:length(schngs)){
+      yl <- length(which(YY$Loss.SF >= schngs[Z - 1] &
+                           YY$Loss.SF < schngs[Z]))
+      YL <- YY[YY$SF.Units >= schngs[Z - 1]  & YY$Loss.SF < schngs[Z], ]
+      
+      yg <- length(which(YY$Gain.SF >= schngs[Z - 1] &
+                           YY$Gain.SF < schngs[Z]))
+      YG <- YY[YY$Gain.SF >= schngs[Z - 1]  & YY$Gain.SF < schngs[Z], ]
+      
+      Size.Change.S[Z - 1, 1] <- yl
+      Size.Change.S[Z - 1, 2] <- -sum(YL$Loss.SF)
+      Size.Change.S[Z - 1, 3] <- yg
+      Size.Change.S[Z - 1, 4] <- sum(YG$Gain.SF)
+      Size.Change.S[Z - 1, 5] <- Size.Change.S[Z - 1, 2] + Size.Change.S[
+                                                                    Z - 1, 4]
+    }
+    
+    # 13.2.3 Summarize 
+    Size.Change.S[length(schngs), ] <- colSums(Size.Change.S[1:(
+                                                       length(schngs) - 1), ])
+    
+    # 13.2.4 Add Row and Column Names
+    colnames(Size.Change.S) <- cNames[6:10]
+    
+    for(i in 2:length(schngs)){
+      rownames(Size.Change.S)[i - 1] <- paste0(schngs[i - 1],
+                                               " to ", (schngs[i] - 1))  
+    }
+    rownames(Size.Change.S)[length(schngs)] <- "Totals"  
+    
+    # 13.3.5 Add to List    
+   SU.Change.S[[Y]] <- Size.Change.S
+  }
+
+# 13.4 Return ------------------------------------------------------------------
+
+ return(list(SU.Change.U, SU.Change.S,rownames(LT)))
+ }
 
 } # Ends Function
 
