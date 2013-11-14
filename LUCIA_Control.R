@@ -24,11 +24,8 @@
   source("D://Code//R//Research//LUCIA_Model//Parcel_Geometry.R")
   source("D://Code//R//Research//LUCIA_Model//Parcel_History.R")
   source("D://Code//R//Research//LUCIA_Model//tabulateChanges.R")
-
-# To Come
-  #source("c://Dropbox//Code//WA//KingCounty//PSS_Model//Tabular_Change.R")
-  #source("c://Dropbox//Code//WA//KingCounty//PSS_Model//Parcel_History.R")
-  #source("c://Dropbox//Code//WA//KingCounty//PSS_Model//Change_Counter.R")
+  source("D://Code//R//General//Toolsets//rgl_SpatialTools.R")
+  source("D://Code//R//General//R_Helpers//Spatial_Helpers.R")
 
 # 0.3 Set Parameters -----------------------------------------------------------
 
@@ -132,5 +129,27 @@
 
   PT.Change <- tabulateChanges(clip, beg.parcels, end.parcels, Par.Hist,
                             Beg.Year, End.Year, CType="Process.Time")
+
+################################################################################
+# 5.0 Visualize the Results ----------------------------------------------------
+
+# 5.1 Basic Map of Parcel ------------------------------------------------------
+
+  basePlot(end.parcels, UVs[1,], 2, 3, 2)
+ 
+# 5.2 Map with Changes Highlighted ---------------------------------------------
+  
+  changePlot(end.parcels, UVs[1,], Change.Table, "Gain.Units",
+           c(5, 15, 50), c(3, 4, 5), c(15, 15, 15), 3)
+
+# 5.3 2D Rgl Plot --------------------------------------------------------------
+
+  rgl2dPlot(selectByArea(end.parcels,UVs[1, ]), 2, 2, 1,
+            bg.color="gray90")
+
+# 5.4 3D RGL Plot --------------------------------------------------------------
+
+  rgl3dPlot(selectByArea(end.parcels,UVs[1, ]), Change.Table,
+            "E.SF", "E.aSF", "E.Stories", 12, "white", .5, b.roof=T)
 
 ################################################################################
