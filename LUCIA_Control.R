@@ -92,50 +92,27 @@
   odbcClose(odbc)
 
 ################################################################################
-# 2.0 Calculate Parcel Geometry and History ------------------------------------
+# 2.0 Calculate Parcel ListParcel Geometry and History -------------------------
 
 # 2.1 Select Area of Interest
 
   clip <- UVs[1,]
 
-# 2.2 Calculate Parcel Geometry
+# 2.2 Calculate Parcel List
+
+  Parcel.List <- createParcelList(Beg.Year, End.Year)
+
+# 2.3 Calculate Parcel Geometry
 
   Par.Geom <- calculateGeometry(clip, Beg.Year, End.Year, beg.parcels, 
                                 end.parcels, B.Data, E.Data, .1, 3000)
 
-# 2.3 Calculate
+# 2.4 Calculate Parcel History
 
-  Par.Hist <- calculate
+  Par.Hist <- createParcelHistory(Parcel.List, Par.Geom, Beg.Year, End.Year)
 
-
-
-# 
-# 
-# 
-# 
-# 
-# 
-# 
-# ################################################################################
-# # 3.0 Calculate Parcel History
-# 
-# # 3.1 If Calculate on the Fly
-# if(FullRun == 1){
-#   
-#   Parcel.List <- createParcelList(1999, 2013)
-#   PH <- calculateParcelHistory(Parcel.List, PG, Beg.Year, End.Year)
-# }
-# 
-# # 3.2 If Precalculated
-# if(FullRun == 0){
-#   PH <- read.table(paste0("C://dropbox//data//wa//seattle//geographic//",
-#                           "ParcelHistory.txt"), header=T)
-# }
-# 
-# ################################################################################
+################################################################################
 # # 4.0 Tabular Changes ----------------------------------------------------------
-# 
-# clip <- UVs[1,]
 # 
 # Change.Table <- tabulateChange(clip, beg.parcels, end.parcels, PH,
 #                               Beg.Year, End.Year, CType="Raw")
