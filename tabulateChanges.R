@@ -64,24 +64,26 @@ tabulateChanges <- function(clip.shp, beg.parcels, end.parcels,
 # 2.1 Identify all changes to use ----------------------------------------------
   
  # 2.1.1 From Beginning Only Parcels
-   PH.b <- merge(PH[PH$Count.Type == "B",], beg.C@data[,c("PINX", "X")],
-                              by.x="PINX", by.y="PINX")
+   PH.b <- merge(PH.object[PH.object$Count.Type == "B",],
+                 beg.clip@data[,c("PINX", "X")],
+                 by.x="PINX", by.y="PINX")
    PH.b$X <- NULL
  
  # 2.1.2 From End and All Parcels 
-   PH.e <- merge(PH[PH$Count.Type != "B", ], end.C@data[ ,c("PINX", "X")],
-               by.x="PINX", by.y="PINX")
+   PH.e <- merge(PH.object[PH.object$Count.Type != "B", ],
+                 end.clip@data[ ,c("PINX", "X")],
+                 by.x="PINX", by.y="PINX")
    PH.e$X <- NULL
  
  # 2.1.3 If some Beg Parcels exist
    if(dim(PH.b)[1] >= 1){
      PwC <- rbind(PH.b, PH.e)
-     PwC <- PwC[PwC$Chng.Time > BY & PwC$Chng.Time < EY, ]
+     PwC <- PwC[PwC$Chng.Time > beg.year & PwC$Chng.Time < end.year, ]
    }
  
  # 2.1.4 If only end parcels
    if(dim(PH.b)[1] == 0){
-     PwC <- PH.e[PH.e$Chng.Time > BY & PH.e$Chng.Time < EY, ]
+     PwC <- PH.e[PH.e$Chng.Time > beg.year & PH.e$Chng.Time < end.year, ]
    }
  
 # 2.2 If Raw, Return Data ------------------------------------------------------
