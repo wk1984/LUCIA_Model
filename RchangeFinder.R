@@ -67,7 +67,8 @@ for(j in 1:length(Ys)){
   if(Field=="SqFtTotLiving"){
    temp <- sqlQuery(odbc, paste0("SELECT Major, Minor, ", Field,
                                  " FROM ResBldg", Ys[j]))
-   xx <- as.data.frame(tapply(temp$NbrLivingUnits, temp$PINX, sum))
+   temp <- pinCreate(temp)
+   xx <- as.data.frame(tapply(temp$SqFtTotLiving, temp$PINX, sum))
    xx$PINX <- rownames(xx)
    colnames(xx) <- c("SF","PINX")
    PX <- merge(PX, xx, by.x="PINX",by.y="PINX", all.x=T)
