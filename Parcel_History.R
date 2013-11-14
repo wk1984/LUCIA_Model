@@ -507,7 +507,7 @@ if(dim(pc.K)[1] > 0){
    nc.A$Gain.Units[ung] <- (nc.A$E.Units[ung] + nc.A$E.aUnits[ung]) - 
                                   (nc.A$B.Units[ung] + nc.A$B.aUnits[ung])
    nc.A$Gain.SF[ung] <- (nc.A$E.SF[ung] + nc.A$E.aSF[ung]) - 
-                                  (nc.A$E.SF[ung] + nc.A$E.aSF[ung])  
+                                  (nc.A$B.SF[ung] + nc.A$B.aSF[ung])  
 
   # 7.5.4 Label the Building Gain
    bgg <- which(nc.A$PlusBldg == 1 & nc.A$Rebuild != 1 & nc.A$E.YearBuilt >= Beg.Year)
@@ -516,7 +516,7 @@ if(dim(pc.K)[1] > 0){
      AchangeFinder(nc.R[bgg,],"NbrBldgs", Beg.Year, End.Year))
    nc.A$Gain.Units[bgg] <- (nc.A$E.Units[bgg] + nc.A$E.aUnits[bgg]) 
                                
-   nc.A$Gain.SF[bgg] <- (nc.A$E.SF[bgg] + nc.A$E.aSF[bgg]) - 
+   nc.A$Gain.SF[bgg] <- (nc.A$E.SF[bgg] + nc.A$E.aSF[bgg])  
                         
 
   # 7.5.5 Label the Building Loss
