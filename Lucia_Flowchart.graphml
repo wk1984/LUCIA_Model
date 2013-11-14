@@ -114,8 +114,8 @@
       <data key="d6">
         <y:GenericNode configuration="com.yworks.flowchart.process">
           <y:Geometry height="40.0" width="165.0" x="381.0" y="277.0"/>
-          <y:Fill color="#FFFFFF" color2="#CCFFFF" transparent="false"/>
-          <y:BorderStyle color="#FF0000" type="line" width="1.0"/>
+          <y:Fill color="#CCFFFF" color2="#CCFFFF" transparent="false"/>
+          <y:BorderStyle color="#000000" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.701171875" modelName="custom" textColor="#000000" visible="true" width="100.052734375" x="32.4736328125" y="10.6494140625">AChangeFinder.R<y:LabelModel>
               <y:SmartNodeLabelModel distance="4.0"/>
             </y:LabelModel>
@@ -130,8 +130,8 @@
       <data key="d6">
         <y:GenericNode configuration="com.yworks.flowchart.process">
           <y:Geometry height="40.0" width="165.0" x="381.0" y="332.0"/>
-          <y:Fill color="#FFFFFF" color2="#CCFFFF" transparent="false"/>
-          <y:BorderStyle color="#FF0000" type="line" width="1.0"/>
+          <y:Fill color="#CCFFFF" color2="#CCFFFF" transparent="false"/>
+          <y:BorderStyle color="#000000" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.701171875" modelName="custom" textColor="#000000" visible="true" width="100.71484375" x="32.142578125" y="10.6494140625">CChangeFinder.R<y:LabelModel>
               <y:SmartNodeLabelModel distance="4.0"/>
             </y:LabelModel>
@@ -146,8 +146,8 @@
       <data key="d6">
         <y:GenericNode configuration="com.yworks.flowchart.process">
           <y:Geometry height="40.0" width="165.0" x="381.0" y="387.0"/>
-          <y:Fill color="#FFFFFF" color2="#CCFFFF" transparent="false"/>
-          <y:BorderStyle color="#FF0000" type="line" width="1.0"/>
+          <y:Fill color="#CCFFFF" color2="#CCFFFF" transparent="false"/>
+          <y:BorderStyle color="#000000" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.701171875" modelName="custom" textColor="#000000" visible="true" width="100.71484375" x="32.142578125" y="10.6494140625">RChangeFinder.R<y:LabelModel>
               <y:SmartNodeLabelModel distance="4.0"/>
             </y:LabelModel>
@@ -162,8 +162,8 @@
       <data key="d6">
         <y:GenericNode configuration="com.yworks.flowchart.process">
           <y:Geometry height="40.0" width="165.0" x="381.0" y="442.0"/>
-          <y:Fill color="#FFFFFF" color2="#CCFFFF" transparent="false"/>
-          <y:BorderStyle color="#FF0000" type="line" width="1.0"/>
+          <y:Fill color="#CCFFFF" color2="#CCFFFF" transparent="false"/>
+          <y:BorderStyle color="#000000" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.701171875" modelName="custom" textColor="#000000" visible="true" width="100.052734375" x="32.4736328125" y="10.6494140625">PChangeFinder.R<y:LabelModel>
               <y:SmartNodeLabelModel distance="4.0"/>
             </y:LabelModel>
