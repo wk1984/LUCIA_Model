@@ -59,15 +59,15 @@ shinyUI(pageWithSidebar(
                      "Upper Queen Anne" = "UQA",
                      "Uptown" = "UP",
                      "Wallingford" = "WAL",
-                     "West Seattle Junction" = "WSF",
-                     "Westwood/Highland Park" = "WH",                     
-                     )),
+                     "West Seattle Junction" = "WSJ",
+                     "Westwood/Highland Park" = "WH"           
+                     ))
     
   ),
   
   # Show the caption and plot of the requested variable against mpg
   mainPanel(
     h3(textOutput("caption")),  
-    plotOutput("Change.Plot", width="100%")
+    plotOutput("Change.Plot", width="80%")
   )
 ))
