@@ -24,8 +24,10 @@
   source("D://Code//R//Research//LUCIA_Model//Parcel_Geometry.R")
   source("D://Code//R//Research//LUCIA_Model//Parcel_History.R")
   source("D://Code//R//Research//LUCIA_Model//tabulateChanges.R")
+  source("D://Code//R//Research//LUCIA_Model//visualizeLUCIA.R")
   source("D://Code//R//General//Toolsets//rgl_SpatialTools.R")
   source("D://Code//R//General//R_Helpers//Spatial_Helpers.R")
+
 
 # 0.3 Set Parameters -----------------------------------------------------------
 
