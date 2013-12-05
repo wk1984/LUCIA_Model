@@ -252,7 +252,7 @@ if(CType == "Use"){
 # 6.5 Cut Missing Land Uses ----------------------------------------------------
 
    rs <- rowSums(Use.Change)
-   Use.Change <- Use.Change[-which(rs == 0), ]
+   Use.Change <- Use.Change[rs != 0, ]
    
 # 6.6 Return Values ------------------------------------------------------------
    
