@@ -34,7 +34,7 @@ basePlot <- function(parcels, clip, bor.col, fill.col, lWd, toAdd = FALSE){
 # 2.0 Plotting with changes shown (TO COME) ------------------------------------
 
 changePlot  <- function(parcels, clip, change.file, break.field,
-                        c.breaks, c.col, c.pch, cex.par){
+                        c.breaks, c.col, c.pch, cex.par, toAdd=FALSE){
   
   # Clip to desired area
   par.clip <- selectByArea(parcels, clip)
@@ -57,8 +57,10 @@ changePlot  <- function(parcels, clip, change.file, break.field,
   # Plot Change Map
 
   # Plot Change Boundary
-  plot(clip, bor="gray20", lwd=2)
-
+  if(!toAdd) plot(clip, bor="gray20", lwd=2)
+  if(toAdd) plot(clip, bor="gray20", lwd=2, add=T)
+  
+  
   # Plot Base Parcels
   plot(par.clip, bor="white", col="gray90", add=T)
 

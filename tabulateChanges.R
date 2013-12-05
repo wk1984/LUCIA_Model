@@ -224,6 +224,10 @@ if(CType == "Use"){
    
 # 6.3 Calculate Changes --------------------------------------------------------
    
+   PwC$B.LUType[is.na(PwC$B.LUType)] <- "Other"
+   PwC$E.LUType[is.na(PwC$E.LUType)] <- "Other"
+
+
    for(Y in 1:length(LT)){
      YB <- PwC[PwC$B.LUType == rownames(LT)[Y], ]
      YE <- PwC[PwC$E.LUType == rownames(LT)[Y], ]
