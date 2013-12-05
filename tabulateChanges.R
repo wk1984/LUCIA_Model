@@ -168,7 +168,7 @@ if(CType == "All"){
    
   chngs <- rownames(table(as.character(PwC$Chng.Type)))
   cut <- which(chngs == "A.C." | chngs == "None")
-  if(length(cut) > 0){chngs <- chngs[-cut, ]}
+  if(length(cut) > 0){chngs <- chngs[-cut]}
   Process.Change <- matrix(ncol=10, nrow=length(chngs) + 1)
   
 # 5.2 Calculate Changes  -------------------------------------------------------
